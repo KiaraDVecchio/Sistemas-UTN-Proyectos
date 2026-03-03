@@ -4,8 +4,12 @@
 
 ### 🚀 Proyectos Destacados
 
-| **[Metamapa](./link-al-repo)** | Diseño de Sistemas | Sistema de monitoreo para personas con movilidad reducida. | `Java` `MySQL` |
-| **[Simulación Zomato](./link-al-repo)** | Simulación | Modelado dinámico de delivery y análisis de datos. | `Python` |
+# 📍**[Metamapa – Plataforma de Mapeo Colaborativo](./link-al-repo)** 
+Sistema web para la visualización y gestión de eventos geolocalizados en tiempo real. Fue el Trabajo Práctico Anual de **Diseño de Sistemas**, abarcando desde el modelado de dominio hasta el despliegue en la nube.
+
+* **Lo más destacado:** Arquitectura de microservicios, integración con APIs externas y despliegue en la nube (Railway).
+* **Stack:** `Java` `Spring Boot` `MySQL` `Thymeleaf`.
+* **Resultado:** Un sistema escalable con autenticación JWT y persistencia en AWS RDS.
 
 ## 🛠️ Stack Tecnológico
 ![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
