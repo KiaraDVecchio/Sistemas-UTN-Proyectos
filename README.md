@@ -6,6 +6,7 @@
 
 ### [Metamapa – Plataforma de Mapeo Colaborativo](./Diseño%20de%20Sistemas%20-%202025)
 Sistema de código abierto diseñado para la recopilación y visibilización geográfica de información sensible (focos de incendio, contaminación, denuncias). El objetivo principal es potenciar la inteligencia colectiva mediante el mapeo colaborativo de "hechos" multimedia, garantizando la veracidad de los datos y el anonimato de los usuarios.
+
 **Desafíos técnicos abordados:**
 * Arquitectura de Microservicios: Implementación de servicios independientes para la gestión de fuentes de datos (estáticas, dinámicas y proxies), un motor de agregación y un servicio de estadísticas.
 * Seguridad y Privacidad: Sistema de autenticación mixta (Sesiones + JWT) con un fuerte enfoque en la protección de datos personales y la recepción de denuncias.
