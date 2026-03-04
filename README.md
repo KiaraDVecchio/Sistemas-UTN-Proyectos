@@ -11,3 +11,10 @@ Sistema de código abierto diseñado para la recopilación y visibilización geo
 * Arquitectura de Microservicios: Implementación de servicios independientes para la gestión de fuentes de datos (estáticas, dinámicas y proxies), un motor de agregación y un servicio de estadísticas.
 * Seguridad y Privacidad: Sistema de autenticación mixta (Sesiones + JWT) con un fuerte enfoque en la protección de datos personales y la recepción de denuncias.
 * Stack Tecnológico: Java (Spring Boot), Maven, Docker, MySQL, JPA/Hibernate, Thymeleaf. 
+
+### [Birbnb – Plataforma de Gestión de Reservas Temporales](./Desarrollo%20de%20Software%20-%202025)
+Este proyecto es un sistema integral de reservas de alojamientos (estilo Airbnb) que permite a los usuarios buscar y alquilar propiedades de manera sencilla. La plataforma conecta anfitriones con huéspedes, permitiendo la gestión completa del ciclo de vida de una reserva, desde la búsqueda con filtros avanzados hasta la confirmación y el sistema de notificaciones en tiempo real.
+
+**Desafíos técnicos abordados:**
+* Arquitectura API REST: Diseño e implementación de una API robusta bajo el enfoque REST utilizando Node.js y Express, gestionando flujos complejos de reserva y disponibilidad.
+* Stack Tecnológico: JavaScript, Node.js, Express, MongoDB, Next.js, React, Axios, Jest, Cypress.
