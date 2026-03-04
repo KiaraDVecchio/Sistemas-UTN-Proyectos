@@ -1,0 +1,75 @@
+.uiinput__container {
+    position: relative;
+    padding: 4px;
+    /* width: min-content; */
+    /* min-width: 200px; */
+    border: 1px solid var(--bs-border-color);
+    border-radius: 4px;
+    height: 33px;
+    box-sizing: border-box;
+    display: flex;
+}
+
+.uiinput__containerContainer {
+    width: 100%;
+}
+
+.uiinput__containerContainer.uiinput__mobile,
+.uiinput__container.uiinput__mobile,
+.uiinput__mobile>.uiinput__container,
+.uiinput__mobile {
+    width: 100%;
+}
+
+.uiinput__label {
+    position: absolute;
+    top: -9px;
+    margin-left: 2px;
+    padding: 0px 6px;
+    font-size: 10px;
+    color: gray;
+    background-color: var(--bs-border-color);
+}
+
+.uiinput__input,
+.uiinput__textarea {
+    font-family: 'Poppins';
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+    border: none;
+    background-color: transparent;
+}
+
+.uiinput__textarea {
+    font-family: 'Poppins', sans-serif;
+    resize: none;
+}
+
+.uiinput__label.uiinput__validationError,
+.uiinput__container.uiinput__validationError {
+    border-color: #aa0000;
+    color: #aa0000;
+}
+
+.uiinput__validationError {
+    color: #aa0000;
+}
+
+.uiinput__validationERrorMessage {
+    display: inline-block;
+    max-width: 250px;
+    font-size: 10px;
+}
+
+.uiinput__disabled {
+    cursor: not-allowed;
+    color: gray;
+}
+
+.uiinput__disabled .uiinput__container {
+    cursor: not-allowed;
+    color: gray;
+    border-color: var(--bs-border-color);
+    ;
+}

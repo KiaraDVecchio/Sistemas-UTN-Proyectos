@@ -1,0 +1,77 @@
+.reservas-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: calc(100vh-130px);
+}
+
+
+.card-reservas {
+  width: 100%;
+  max-width: 800px;
+  border-radius: 10px;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  height: 250px;
+
+}
+
+.card-reservas:hover {
+  transform: scale(1.02);
+}
+
+.card-image-reservas {
+  width: 100%;
+  object-fit: cover;
+  height: 400px;
+  opacity: 0.5;
+}
+
+.card-img-overlay {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+
+}
+
+.text-shadow {
+  font-size: 25px;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+  color: #fff;
+}
+
+.info-fechas {
+  color: #fff;
+  font-size: 0.9rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.info-accion {
+  text-align: right;
+  color: #fff;
+}
+
+.info-accion .total {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.info-accion button {
+  padding: 0.25rem 0.5rem;
+}
+
+.sin-reservas {
+  flex: 1;
+  flex-direction: column;
+  display: flex;
+  font-size: 1.25rem;
+  color: #555;
+  justify-content: center;
+  align-items: center;
+
+}

@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "dev": "concurrently --names backend,frontent --prefix birbinb --prefix-colors cyan,magenta \"cd backend && npm run dev\" \"cd frontend && npm run start\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.13",
+    "react-datepicker": "^8.4.0",
+    "react-toastify": "^11.0.5"
+  }
+}

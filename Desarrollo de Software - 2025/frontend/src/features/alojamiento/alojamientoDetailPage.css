@@ -1,0 +1,35 @@
+.detalle-container {
+    display: flex;
+
+}
+
+@media (max-width:600px) {
+    .detail-aloj {
+        margin: 10px;
+    }
+}
+
+.detail-aloj {
+    padding: 0px !important;
+
+}
+
+.info-col {
+    margin-top: 30px;
+}
+
+.info-col h5 {
+    margin-bottom: 20px;
+}
+
+.alojamiento-detail-datarow>.row {
+    overflow: hidden;
+    flex-grow: 1;
+    flex-basis: 0;
+}
+
+#alojamiento_form {
+    position: sticky;
+    top: 12px;
+    margin-bottom: 12px;
+}

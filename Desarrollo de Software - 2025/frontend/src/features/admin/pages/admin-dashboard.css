@@ -1,0 +1,62 @@
+.admin-dashboard-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 12px;
+    height: 100%;
+}
+
+.admin-dashboard-container .div4 {
+    grid-column: span 3 / span 3;
+    grid-row: span 3 / span 3;
+    grid-column-start: 1;
+    grid-row-start: 2;
+}
+
+.admin-dashboard-container .div5 {
+    grid-column: span 2 / span 2;
+    grid-row: span 3 / span 3;
+    grid-column-start: 4;
+    grid-row-start: 2;
+}
+
+.admin-dashboard-container .div6 {
+    grid-row: span 2 / span 2;
+    grid-column-start: 1;
+    grid-row-start: 5;
+}
+
+.admin-dashboard-container .div1 {
+    grid-column: span 2 / span 2;
+    grid-column-start: 1;
+    grid-row-start: 1;
+}
+
+.admin-dashboard-container .div2 {
+    grid-column: span 2 / span 2;
+    grid-column-start: 3;
+    grid-row-start: 1;
+}
+
+.admin-dashboard-container .div7 {
+    grid-row: span 2 / span 2;
+    grid-column-start: 2;
+    grid-row-start: 5;
+}
+
+.admin-dashboard-container .div8 {
+    grid-row: span 2 / span 2;
+    grid-column-start: 3;
+    grid-row-start: 5;
+}
+
+.admin-dashboard-container .div3 {
+    grid-column-start: 5;
+    grid-row-start: 1;
+}
+
+.admin-dashboard-container .div9 {
+    grid-column: span 2 / span 2;
+    grid-row: span 2 / span 2;
+    grid-row-start: 5;
+}

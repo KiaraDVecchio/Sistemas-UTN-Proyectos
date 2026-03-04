@@ -1,0 +1,33 @@
+.alojamiento-card__skeleton--list {
+    align-content: center;
+    margin: 16px auto;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    grid-column-gap: 8px;
+    grid-row-gap: 8px;
+    width: min-content;
+}
+
+.alojamiento-card__skeleton--container {
+    width: 220px;
+    height: 315px;
+}
+
+@media screen and (max-width: 450px) {
+    .alojamiento-card__skeleton--list {
+        align-content: center;
+        margin: 16px auto;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        grid-column-gap: 8px;
+        grid-row-gap: 8px;
+        width: min-content;
+    }
+
+    .alojamiento-card__skeleton--container {
+        width: 45vw;
+        height: 40vh;
+    }
+}

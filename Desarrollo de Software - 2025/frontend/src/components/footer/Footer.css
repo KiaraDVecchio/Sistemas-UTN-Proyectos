@@ -1,0 +1,171 @@
+:root {
+    --sombra: 0 1px 2px #0080001a;
+    --celestito: #00BBF9;
+    --cremita: #F0F7EE;
+    --rosita: #EE4266;
+    --azulito: #1B4079;
+    --grisesito: #3C3C3C;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 20px 40px;
+    align-items: flex-start;
+    color: var(--cremita);
+    background-color: var(--azulito);
+    bottom: 0;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.footer-section {
+    display: flex;
+    gap: 10px;
+    background: transparent;
+    flex-direction: column;
+}
+
+.footer-section.center {
+    align-items: center;
+    text-align: center;
+}
+
+.footer-section.right {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.footer-section.right a{
+    text-decoration: none;
+    color: white;
+    transition: 1s;
+}
+
+.footer-section.right a:hover{
+    text-decoration: none;
+    color: var(--rosita);
+    transition: 1s;
+}
+
+
+.footer-section .redes {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.footer-section .contacto {
+    padding-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;   
+    text-align: center; 
+    gap: 8px;
+}
+
+.language-currency {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.footer-copy {
+    display: none; /* Oculto por defecto en desktop */
+}
+
+.center svg {
+    width: 32px;
+    height: 32px;
+}
+
+/* Estilos para los botones de redes sociales */
+.redes button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.redes button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 650px) {
+    .footer {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 25px;
+        padding: 30px 20px;
+    }
+
+    .footer-section {
+        align-items: center;
+        width: 100%;
+        text-align: center;
+    }
+
+    .footer-section.left,
+    .footer-section.right {
+        align-items: center;
+        text-align: center;
+    }
+
+    .language-currency {
+        display: flex;
+        flex-direction: row;
+        gap: 30px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .language-currency span {
+        margin: 0;
+    }
+
+    .footer-section .redes {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .footer-section.left > p:last-child {
+        display: none;
+    }
+
+    .footer-copy {
+        display: block;
+        text-align: center;
+        width: 100%;
+        margin-top: 10px;
+        color: var(--cremita);
+        order: 10;
+    }
+
+    .footer-copy p {
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .footer-section.left {
+        order: 1;
+    }
+
+    .footer-section.center {
+        order: 2;
+    }
+
+    .footer-section.right {
+        order: 3;
+    }
+
+    .footer-copy {
+        order: 4;
+    }
+}
+
+
+

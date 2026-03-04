@@ -1,0 +1,14 @@
+:root {
+    --sombra: 0 1px 2px #0080001a;
+    --celestito: #00BBF9;
+    --cremita: #eef5f7;
+    --rosita: #EE4266;
+    --azulito: #1B4079;
+    --grisesito: #3C3C3C;
+}
+
+.alojamientos-carousel{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}

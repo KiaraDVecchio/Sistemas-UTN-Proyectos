@@ -1,0 +1,39 @@
+.detalle-container {
+  max-width: 900px;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.fila {
+  height: 280px;
+  display: flex;
+  margin-top: 8px !important;
+  gap: 8px;
+
+}
+
+.fila>.col {
+  padding: 0;
+  height: 100%;
+  cursor: pointer;
+}
+
+.fila img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 8px;
+  transition: filter 0.3s ease;
+}
+
+.fila img:hover {
+  filter: brightness(0.7);
+  cursor: pointer;
+}
+
+.gallery-col {
+  margin-bottom: 16px;
+}

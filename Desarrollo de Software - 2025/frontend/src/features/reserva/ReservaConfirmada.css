@@ -1,0 +1,387 @@
+/* ===== CONTAINER PRINCIPAL ===== */
+.reserva-confirmada-container {
+  /* padding: 1rem 0; */
+  max-width: 100vw;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fffe 0%, #f0f9ff 100%);
+}
+
+/* ===== HEADER ===== */
+.reserva-confirmada-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem 0;
+}
+
+.check-icon {
+  margin-bottom: .5rem;
+  animation: checkmark-bounce 0.6s ease-out;
+}
+
+.reserva-confirmada-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.reserva-confirmada-subtitle {
+  font-size: 1.25rem;
+  color: #6b7280;
+  margin-bottom: 0;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+/* ===== CARD PRINCIPAL ===== */
+.reserva-confirmada-card {
+  width: 90vw;
+  border: none;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  border-radius: px;
+  margin-bottom: 10rem;
+  animation: slideInUp 0.8s ease-out 0.6s both;
+}
+
+.reserva-confirmada-card .card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 960px;
+  /* Controlar el ancho total */
+  margin: 0 auto;
+}
+
+.reserva-confirmada-card:hover {
+  transform: translateY(-2px);
+  transition: transform 0.3s ease;
+}
+
+/* ===== LAYOUT CONTENIDO ===== */
+.reserva-confirmada-detalle {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  gap: 3rem;
+  width: 100%;
+}
+
+.reserva-imagen-section {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.reserva-imagen-section img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: px;
+}
+
+.reserva-confirmada-image {
+  width: 100%;
+  max-width: 400px;
+  height: 280px;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.reserva-confirmada-image:hover {
+  transform: scale(1.02);
+}
+
+.reserva-info-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+.alojamiento-nombre {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* ===== DETALLES RESERVA ===== */
+.detalle-reserva {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.detalle-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border-left: 4px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.detalle-item:hover {
+  background: #f1f5f9;
+  border-left-color: #3b82f6;
+  transform: translateX(4px);
+}
+
+.detalle-label {
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+}
+
+.detalle-valor {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 1rem;
+  text-align: right;
+}
+
+/* Precio total destacado */
+.precio-total {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  border-left: 4px solid #15803d;
+  margin: 1rem 0;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.precio-total .detalle-label,
+.precio-total .detalle-valor {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.precio-total:hover {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  transform: translateX(0);
+}
+
+/* ===== BOTONES ===== */
+.reserva-confirmada-acciones {
+  margin-bottom: 3rem;
+  animation: fadeInUp 0.8s ease-out 0.8s both;
+}
+
+.btn-accion {
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 55px;
+}
+
+.btn-accion:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn-accion:focus {
+  outline: 3px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+}
+
+.btn-accion.btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border-color: #3b82f6;
+}
+
+.btn-accion.btn-outline-primary {
+  color: #3b82f6;
+  border-color: #3b82f6;
+  background: white;
+}
+
+.btn-accion.btn-outline-primary:hover {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.btn-accion.btn-outline-secondary {
+  color: #6b7280;
+  border-color: #d1d5db;
+  background: white;
+}
+
+.btn-accion.btn-outline-secondary:hover {
+  background: #6b7280;
+  border-color: #6b7280;
+  color: white;
+}
+
+/* ===== FOOTER ===== */
+.reserva-confirmada-footer {
+  text-align: center;
+  padding: 2rem 0;
+  animation: fadeInUp 0.8s ease-out 1s both;
+}
+
+.soporte-texto {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.soporte-texto a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.soporte-texto a:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes checkmark-bounce {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====RESPONSIVE DESIGN===== */
+/* @media (min-width: 768px) {
+  .reserva-confirmada-detalle {
+    flex-direction: row;
+    gap: 3rem;
+  }
+
+  .reserva-imagen-section {
+    flex: 0 0 300px;
+  }
+
+  .alojamiento-nombre {
+    text-align: left;
+    font-size: 2rem;
+  }
+
+  .reserva-confirmada-image {
+    height: 200px;
+  }
+} */
+
+/* @media (min-width: 992px) {
+  .reserva-imagen-section {
+    flex: 0 0 350px;
+  }
+  
+  .reserva-confirmada-image {
+    height: 260px;
+  }
+  
+  .detalle-item {
+    padding: 1rem;
+  }
+} */
+/* 
+@media (max-width: 767px) {
+  .reserva-confirmada-container {
+    padding: 1rem 0;
+  }
+
+  .reserva-confirmada-title {
+    font-size: 2rem;
+  }
+
+  .reserva-confirmada-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .reserva-confirmada-card .card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .alojamiento-nombre {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .detalle-item {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .detalle-label {
+    font-size: 0.9rem;
+  }
+
+  .detalle-valor {
+    font-size: 1.1rem;
+    text-align: center;
+    font-weight: 700;
+  }
+
+  .reserva-confirmada-image {
+    height: 220px;
+  }
+
+  .btn-accion {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    min-height: 50px;
+  }
+} */

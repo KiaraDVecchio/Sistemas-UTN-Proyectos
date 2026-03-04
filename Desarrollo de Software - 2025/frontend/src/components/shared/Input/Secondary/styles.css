@@ -1,0 +1,50 @@
+.uiinputsecondary__container {
+    position: relative;
+    padding: 4px 4px 0;
+    width: min-content;
+    min-width: 200px;
+    border-bottom: 1.5px solid var(--bs-border-color);
+}
+
+.uiinputsecondary__containerContainer {
+    width: min-content;
+}
+
+.uiinputsecondary__label {
+    font-family: 'Nunito', sans-serif;
+    position: absolute;
+    top: -8px;
+    left: 0;
+    font-size: 12px;
+    color: gray;
+}
+
+.uiinputsecondary__input,
+.uiinputsecondary__textarea {
+    width: 100%;
+    font-weight: light;
+    outline: none;
+    border: none;
+    background-color: transparent;
+    font-size: 14px;
+    padding: 0;
+}
+
+.uiinputsecondary__textarea {
+    font-family: 'Poppins', sans-serif;
+    resize: none;
+}
+
+.uiinputsecondary__label.uiinputsecondary__validationError,
+.uiinputsecondary__container.uiinputsecondary__validationError {
+    border-color: #aa0000;
+    color: #aa0000;
+}
+
+.uiinputsecondary__validationError {
+    color: #aa0000;
+}
+
+.uiinputsecondary__validationERrorMessage {
+    font-size: 10px;
+}

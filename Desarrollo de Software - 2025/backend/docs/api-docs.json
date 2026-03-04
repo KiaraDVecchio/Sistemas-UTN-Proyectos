@@ -1,0 +1,556 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API de Gestión de Reservas, Alojamientos y Notificaciones",
+    "version": "1.0.0",
+    "description": "Documentación de la API REST basada en la implementación del proyecto: reservas, búsqueda de alojamientos y notificaciones."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor local"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Usuario": {
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "email"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Juan Pérez"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "juan@example.com"
+          }
+        }
+      },
+      "Alojamiento": {
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "ubicacion",
+          "precio",
+          "maxHuespedes"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 5
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Casa de Playa"
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "Cómoda casa frente al mar"
+          },
+          "ubicacion": {
+            "type": "string",
+            "example": "Mar del Plata, Argentina"
+          },
+          "precio": {
+            "type": "number",
+            "example": 120.50
+          },
+          "maxHuespedes": {
+            "type": "integer",
+            "example": 4
+          },
+          "caracteristicasEspeciales": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Wi-Fi",
+              "Pileta"
+            ]
+          }
+        }
+      },
+      "Reserva": {
+        "type": "object",
+        "required": [
+          "id",
+          "usuario",
+          "alojamiento",
+          "fechaInicio",
+          "fechaFin",
+          "estado"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 10
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "alojamiento": {
+            "$ref": "#/components/schemas/Alojamiento"
+          },
+          "fechaInicio": {
+            "type": "string",
+            "format": "date",
+            "example": "2025-06-01"
+          },
+          "fechaFin": {
+            "type": "string",
+            "format": "date",
+            "example": "2025-06-05"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "PENDIENTE",
+              "CONFIRMADA",
+              "CANCELADA"
+            ],
+            "example": "PENDIENTE"
+          }
+        }
+      },
+      "NuevaReserva": {
+        "type": "object",
+        "required": [
+          "alojamiento",
+          "fechaInicio",
+          "fechaFin"
+        ],
+        "properties": {
+          "alojamiento": {
+            "$ref": "#/components/schemas/Alojamiento"
+          },
+          "fechaInicio": {
+            "type": "string",
+            "format": "date"
+          },
+          "fechaFin": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "example": {
+          "alojamiento": {
+            "id": 5,
+            "nombre": "Casa de Playa",
+            "ubicacion": "Mar del Plata, Argentina",
+            "precio": 120.50,
+            "maxHuespedes": 4,
+            "caracteristicasEspeciales": [
+              "Wi-Fi",
+              "Pileta"
+            ]
+          },
+          "fechaInicio": "2025-06-01",
+          "fechaFin": "2025-06-05"
+        }
+      },
+      "Notificacion": {
+        "type": "object",
+        "required": [
+          "id",
+          "mensaje",
+          "usuario",
+          "reserva",
+          "leida",
+          "fecha"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 7
+          },
+          "mensaje": {
+            "type": "string",
+            "example": "Tu reserva ha sido confirmada"
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "reserva": {
+            "$ref": "#/components/schemas/Reserva"
+          },
+          "leida": {
+            "type": "boolean",
+            "example": false
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-05-20T15:30:00Z"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/reservas": {
+      "get": {
+        "summary": "Listar reservas",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de reservas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reserva"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear reserva",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevaReserva"
+              },
+              "example": {
+                "alojamiento": {
+                  "id": 5,
+                  "nombre": "Casa de Playa",
+                  "ubicacion": "Mar del Plata, Argentina",
+                  "precio": 120.50,
+                  "maxHuespedes": 4,
+                  "caracteristicasEspeciales": [
+                    "Wi-Fi",
+                    "Pileta"
+                  ]
+                },
+                "fechaInicio": "2025-06-01",
+                "fechaFin": "2025-06-05"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reserva creada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reserva"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservas/admin": {
+      "get": {
+        "summary": "Reservas para anfitrión",
+        "responses": {
+          "200": {
+            "description": "Reservas del anfitrión",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reserva"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservas/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Detalle de reserva",
+        "responses": {
+          "200": {
+            "description": "Reserva encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reserva"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No encontrada"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar reserva",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevaReserva"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reserva actualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reserva"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Cancelar reserva",
+        "responses": {
+          "204": {
+            "description": "Eliminada exitosamente"
+          },
+          "404": {
+            "description": "No encontrada"
+          }
+        }
+      }
+    },
+    "/alojamientos": {
+      "get": {
+        "summary": "Listar alojamientos",
+        "responses": {
+          "200": {
+            "description": "Lista paginada de alojamientos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Alojamiento"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notificaciones": {
+      "get": {
+        "summary": "Listar notificaciones",
+        "parameters": [
+          {
+            "name": "usuario",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "leidas",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notificaciones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Notificacion"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear notificación",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Notificacion"
+              },
+              "example": {
+                "mensaje": "Tu reserva ha sido confirmada",
+                "usuario": {
+                  "id": 1,
+                  "nombre": "Juan Pérez",
+                  "email": "juan@example.com"
+                },
+                "reserva": {
+                  "id": 10,
+                  "usuario": {
+                    "id": 1,
+                    "nombre": "Juan Pérez",
+                    "email": "juan@example.com"
+                  },
+                  "alojamiento": {
+                    "id": 5,
+                    "nombre": "Casa de Playa",
+                    "ubicacion": "Mar del Plata, Argentina",
+                    "precio": 120.50,
+                    "maxHuespedes": 4,
+                    "caracteristicasEspeciales": [
+                      "Wi-Fi",
+                      "Pileta"
+                    ]
+                  },
+                  "fechaInicio": "2025-06-01",
+                  "fechaFin": "2025-06-05",
+                  "estado": "CONFIRMADA"
+                },
+                "leida": false,
+                "fecha": "2025-05-20T15:30:00Z"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Creada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Notificacion"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notificaciones/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Detalle notificación",
+        "responses": {
+          "200": {
+            "description": "Encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Notificacion"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No encontrada"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Marcar como leída",
+        "responses": {
+          "200": {
+            "description": "Actualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Notificacion"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No encontrada"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,97 @@
+.auth-modal-header {
+  border-bottom: 1px solid #e9ecef;
+  padding: 1.5rem;
+}
+
+.auth-modal-title {
+  color: #222222;
+  font-weight: 600;
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.auth-modal-body {
+  padding: 1.5rem;
+}
+
+.auth-submit-btn {
+  background-color: #ff385c;
+  border-color: #ff385c;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.auth-submit-btn:hover {
+  background-color: #e00b41;
+  border-color: #e00b41;
+}
+
+.auth-submit-btn:focus {
+  background-color: #e00b41;
+  border-color: #e00b41;
+  box-shadow: 0 0 0 0.2rem rgba(255, 56, 92, 0.25);
+}
+
+.auth-switch-container {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.auth-switch-text {
+  color: #717171;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.auth-switch-link {
+  color: #ff385c;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.auth-switch-link:hover {
+  color: #e00b41;
+  text-decoration: underline;
+}
+
+/* Estilos para los inputs del formulario */
+.auth-modal-body .form-control {
+  border-radius: 8px;
+  border: 1px solid #dddddd;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-modal-body .form-control:focus {
+  border-color: #ff385c;
+  box-shadow: 0 0 0 0.2rem rgba(255, 56, 92, 0.15);
+}
+
+.auth-modal-body .form-label {
+  color: #222222;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.auth-modal-body .form-check-label {
+  color: #717171;
+  font-size: 0.9rem;
+}
+
+.auth-modal-body .form-check-input:checked {
+  background-color: #ff385c;
+  border-color: #ff385c;
+}
+
+.auth-modal-body .form-check-input:focus {
+  border-color: #ff385c;
+  box-shadow: 0 0 0 0.2rem rgba(255, 56, 92, 0.25);
+}

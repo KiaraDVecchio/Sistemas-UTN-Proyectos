@@ -1,0 +1,32 @@
+.arrowIcon__container {
+    display: flex;
+    position: relative;
+    height: 32px;
+    width: 32px;
+    justify-content: center;
+    align-items: center;
+}
+
+.arrowIcon__line {
+    position: absolute;
+    width: 12px;
+    height: 2px;
+    background-color: gray;
+}
+
+
+.arrowIcon__first.arrowIcon__degPlus {
+    transform: translateY(-5px) rotate(60deg);
+}
+
+.arrowIcon__second.arrowIcon__degPlus {
+    transform: translateY(5px) rotate(60deg);
+}
+
+.arrowIcon__first.arrowIcon__degMinus {
+    transform: translateY(-5px) rotate(-60deg);
+}
+
+.arrowIcon__second.arrowIcon__degMinus {
+    transform: translateY(5px) rotate(-60deg);
+}

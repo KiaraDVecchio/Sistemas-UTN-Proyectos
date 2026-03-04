@@ -1,0 +1,102 @@
+:root {
+  --sombra: 0 1px 2px #0080001a;
+  --celestito: #00BBF9;
+  --cremita: #F0F7EE;
+  --rosita: #EE4266;
+  --azulito: #1B4079;
+  --grisesito: #3C3C3C;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 10px 15px;
+  box-shadow: var(--sombra);
+  background: var(--search-input_background, linear-gradient(180deg, #FAFEFE 39.9%, #FAFEFE 100%));
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.call-to-action-button {
+  background-color: var(--rosita);
+  border: none;
+  transition: 1s;
+}
+
+.call-to-action-button :hover {
+  background-color: #1B4079;
+  transition: 1s;
+}
+
+
+.right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.menu-icon {
+  border: none;
+  background-color: transparent;
+  font-weight: bold;
+
+  color: var(--azulito);
+  transition: 1s;
+
+}
+
+.menu-icon:hover {
+  cursor: pointer;
+  transition: 1s;
+  color: #264e8a;
+}
+
+#user-menu-dropdown-basic {
+  background-color: white;
+  color: var(--azulito) !important;
+  font-weight: 700;
+  border: none;
+  font-size: 25px;
+
+}
+
+.dropdown-toggle::after {
+  display: none !important;
+}
+
+.dropdown-item:active {
+  background-color: var(--azulito);
+  color: #fff;
+}
+
+/* por defecto (móvil) */
+.d-mobile {
+  display: block;
+}
+
+.d-desktop {
+  display: none;
+}
+
+@media (min-width: 950px) {
+
+  /* en desktop, el botón desaparece y aparece el navbar */
+  .d-mobile {
+    display: none;
+  }
+
+  .d-desktop {
+    display: block;
+  }
+}
+
+.botonFiltros {
+  background-color: transparent !important;
+  border: none;
+}
+
+.lupaFiltros {
+  color: var(--azulito) !important;
+}

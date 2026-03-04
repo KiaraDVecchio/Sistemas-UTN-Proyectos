@@ -1,0 +1,30 @@
+:root {
+    --sombra: 0 1px 2px #0080001a;
+    --celestito: #00BBF9;
+    --cremita: #eef5f7;
+    --rosita: #EE4266;
+    --azulito: #1B4079;
+    --grisesito: #3C3C3C;
+}
+
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: var(--cremita);
+    font-size: 15px;
+    font-weight: bold;
+    padding: 4px 6px;
+    border-radius: 50%;
+}
+
+.notificacion-toggle{
+    background-color: transparent;
+    border: none;
+}
+
+.notificacion-toggle :hover{
+    background-color: transparent !important;
+    border: none !important;
+}
