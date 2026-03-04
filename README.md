@@ -4,6 +4,6 @@
 
 ## 🚀 Proyectos Destacados
 
-### ** [Metamapa – Plataforma de Mapeo Colaborativo](./link-al-repo)** 
+### [Metamapa – Plataforma de Mapeo Colaborativo](./Diseño%20de%20Sistemas%20-%202025)
 Sistema web para la visualización y gestión de eventos geolocalizados en tiempo real. Fue el Trabajo Práctico Anual de **Diseño de Sistemas**, abarcando desde el modelado de dominio hasta el despliegue en la nube.
 * **Lo más destacado:** Arquitectura de microservicios, integración con APIs externas y autenticación mixta (sesiones + JWT). 
