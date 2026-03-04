@@ -1,0 +1,18 @@
+/* ==== base.css ==== */
+/* Reset suave */
+
+
+/* Variables y tipografía base */
+:root{
+  --color-brand: #004080;
+  --text-color: #333;
+
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Navegación base */
+nav ul{ list-style: none; margin: 0; padding: 0; }
+
+.alert{
+    margin-bottom: 0 !important;
+}

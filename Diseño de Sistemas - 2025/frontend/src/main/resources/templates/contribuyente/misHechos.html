@@ -1,0 +1,162 @@
+<html th:replace="~{layout/base :: html}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/misHechos.css}" />
+</div>
+
+<main class="container" th:fragment="contenido">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb my-3">
+        <a th:href="@{/}">Inicio</a> &rsaquo; Mis Hechos
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title" th:text="${titulo}">Mis Hechos</h1>
+        <p class="page-description" th:text="${descripcion}">
+            Gestiona tus reportes. Puedes editarlos durante los primeros 7 días.
+        </p>
+    </div>
+
+    <!-- Filtros -->
+    <form class="filter-section mb-4" method="get" th:action="@{/hechos/mis-hechos}">
+        <div class="row g-3">
+
+            <div class="col-12 col-md-4">
+                <label class="form-label">Buscar por título</label>
+                <input type="text" class="form-control"
+                       name="titulo"
+                       th:value="${param.titulo}"
+                       placeholder="Buscar...">
+            </div>
+
+            <div class="col-12 col-md-4">
+                <label class="form-label">Categoría</label>
+                <select class="form-select" name="categoria">
+                    <option value="">Todas</option>
+                    <option th:each="cat : ${categorias}"
+                            th:value="${cat.nombre}"
+                            th:selected="${param.categoria == cat.nombre}"
+                            th:text="${cat.nombre}">Incendio</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label">Estado edición</label>
+                <select class="form-select" name="estado">
+                    <option value="">Todos</option>
+                    <option value="editable" th:selected="${param.estado == 'editable'}">Editable</option>
+                    <option value="expirado" th:selected="${param.estado == 'expirado'}">Expirado</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-1 d-grid">
+                <button class="btn btn-primary">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+            </div>
+
+        </div>
+    </form>
+
+    <!-- Estado vacío -->
+    <div class="text-center py-5" th:if="${hechos.isEmpty()}">
+        <i class="fa-regular fa-newspaper fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">Aún no has reportado hechos</h5>
+        <a th:href="@{/hechos/nuevo}" class="btn btn-success mt-3">
+            <i class="fas fa-plus"></i> Reportar nuevo hecho
+        </a>
+    </div>
+
+    <!-- Grid de Hechos -->
+    <div class="facts-grid" th:if="${!hechos.isEmpty()}">
+        <div class="fact-card" th:each="h : ${hechos}">
+
+            <div class="fact-card-header">
+
+                <div class="fact-card-title d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <span th:text="${h.titulo}">Título</span>
+                        <span th:if="${h.fueEliminado}" class="badge bg-danger">Eliminado</span>
+                    </div>
+
+                    <div th:unless="${h.fueEliminado}">
+                        <span th:if="${h.editable}" class="edit-status edit-available">
+                            <i class="fas fa-clock"></i>
+                            <span class="days-remaining" th:text="${h.diasRestantes + ' días'}">X días</span> restantes
+                        </span>
+
+                        <span th:if="${!h.editable}" class="edit-status edit-expired">
+                            <i class="fas fa-lock"></i> Período expirado
+                        </span>
+                    </div>
+                </div>
+
+                <div class="fact-category" th:text="${h.categoria}">Categoría</div>
+
+                <div class="fact-meta">
+                    <span>
+                        <i class="fas fa-calendar"></i>
+                        <span th:text="${#temporals.format(h.fechaAcontecimiento, 'dd/MM/yyyy HH:mm')}">
+                            12/08/2025
+                        </span>
+                    </span>
+
+                    <span th:if="${h.provincia}">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span th:text="${h.provincia}">Provincia</span>
+                    </span>
+
+                    <span th:if="${h.cantVistas != null}">
+                        <i class="fas fa-eye"></i>
+                        <span th:text="${h.cantVistas}">0</span> visualizaciones
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="fact-card-body">
+                <p class="fact-description" th:text="${h.descripcion}">Descripción…</p>
+
+                <div class="fact-actions">
+                    <a class="btn btn-secondary"
+                       th:href="@{/hechos/{id}(id=${h.id})}">
+                        <i class="fas fa-eye"></i> Ver detalle
+                    </a>
+
+                    <a class="btn btn-primary"
+                       th:if="${h.editable and !h.fueEliminado and !h.tieneEdicionPendiente}"
+                       th:href="@{/hechos/{id}/editar(id=${h.id})}">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+
+                    <span class="btn btn-warning disabled"
+                          th:if="${h.tieneEdicionPendiente}"
+                          title="Edición pendiente de revisión">
+                        <i class="fas fa-clock"></i> Pendiente de aprobación
+                    </span>
+
+                    <span class="btn btn-secondary disabled"
+                          th:if="${(!h.editable and !h.fueEliminado and !h.tieneEdicionPendiente)}">
+                        <i class="fas fa-lock"></i> No editable
+                    </span>
+
+                    <span class="btn btn-danger disabled"
+                          th:if="${h.fueEliminado}">
+                        <i class="fas fa-ban"></i> Eliminado
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Botón crear
+    <div class="text-center my-4">
+        <a th:href="@{/hechos/nuevo}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Reportar Nuevo Hecho
+        </a>
+    </div>
+    -->
+</main>
+</html>

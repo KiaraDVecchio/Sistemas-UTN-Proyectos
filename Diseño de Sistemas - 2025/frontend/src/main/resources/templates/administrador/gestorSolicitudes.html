@@ -1,0 +1,213 @@
+<html th:replace="~{layout/base :: html}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/gestorSolicitudes.css}" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</div>
+
+<div class="container" th:fragment="contenido">
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Solicitudes de Eliminación de Hechos</h1>
+                <p class="page-subtitle">Gestiona las solicitudes de eliminación de hechos enviadas por los usuarios</p>
+            </div>
+        </div>
+
+        <form th:action="@{/admin/gestor-solicitudes}" method="get" class="filters-section">
+            <div class="filters-grid">
+
+                <div class="filter-group">
+                    <label class="filter-label">Filtrar por Estado</label>
+                    <select class="filter-select" name="estado" onchange="this.form.submit()">
+                        <option value="" th:selected="${filtroEstado == null}">Todos</option>
+                        <option value="pending" th:selected="${filtroEstado == 'pending'}">Pendiente</option>
+                        <option value="approved" th:selected="${filtroEstado == 'approved'}">Aprobado</option>
+                        <option value="rejected" th:selected="${filtroEstado == 'rejected'}">Rechazado</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Buscar por ID</label>
+                    <input type="number" class="filter-input" name="idSolicitud"
+                           placeholder="ID..." th:value="${filtroId}">
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Fecha</label>
+                    <input type="date" class="filter-input" name="fecha"
+                           th:value="${filtroFecha}" onchange="this.form.submit()">
+                </div>
+
+                <div style="display: flex; gap: 10px; align-items: flex-end;">
+                    <button type="submit" class="btn btn-primary" style="height: 42px; display:inline-flex; align-items:center; background-color:#004080; border-color:#004080;">
+                        <i class="fas fa-search"></i> &nbsp;Buscar
+                    </button>
+
+                    <a th:href="@{/admin/gestor-solicitudes}" class="btn btn-secondary" style="height: 42px; display:inline-flex; align-items:center; text-decoration:none; justify-content:center;">
+                        Limpiar
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-container">
+            <div class="alert alert-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+            <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+            <table class="table" th:if="${solicitudes != null && !solicitudes.isEmpty()}">
+                <thead>
+                <tr>
+                    <th>ID Solicitud</th>
+                    <th>Fecha</th>
+                    <th>Hecho a Eliminar</th>
+                    <th>Razón</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+
+                <tbody id="requestsTable">
+                <tr th:each="solicitud : ${solicitudes}"
+                    th:attr="data-status=${solicitud.estado}, data-id=${solicitud.id}">
+
+                    <td th:text="${solicitud.id}">DR001</td>
+                    <td th:text="${solicitud.fechaEntrada != null ? solicitud.fechaEntrada.toLocalDate() : ''}">2023-10-26</td>
+                    <td><small style="color: #6c757d;" th:text="${solicitud.hechoId}">ID: F1234</small></td>
+
+                    <td th:text="${solicitud.justificacion != null && solicitud.justificacion.length() > 50} ? ${solicitud.justificacion.substring(0,50)} + '...' : ${solicitud.justificacion}">
+                        Razón...
+                    </td>
+
+                    <td>
+                        <span th:classappend="${solicitud.estado == 'ACEPTADA'} ? 'status-badge status-approved' :
+                                               (${solicitud.estado == 'RECHAZADA'} ? 'status-badge status-rejected' : 'status-badge status-pending')"
+                              th:text="${solicitud.estado}">
+                          Pendiente
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="action-buttons">
+                            <button type="button" class="btn-action approve"
+                                    title="Aprobar"
+                                    th:attr="data-id=${solicitud.id}"
+                                    onclick="aprobar(this.dataset.id)"
+                                    th:disabled="${solicitud.estado == 'ACEPTADA'}"
+                                    th:style="${solicitud.estado == 'ACEPTADA' ? 'opacity:0.5; pointer-events:none;' : ''}">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+
+                            <a type="button" class="btn-action view" title="Ver" th:href="@{/detalle/{solicitudId}(solicitudId=${solicitud.id})}">
+                                <i class="fas fa-eye"></i>
+                            </a>
+
+                            <button type="button" class="btn-action reject"
+                                    title="Rechazar"
+                                    th:attr="data-id=${solicitud.id}"
+                                    onclick="rechazar(this.dataset.id)"
+                                    th:disabled="${solicitud.estado == 'RECHAZADA'}"
+                                    th:style="${solicitud.estado == 'RECHAZADA' ? 'opacity:0.5; pointer-events:none;' : ''}">
+                                <i class="fas fa-xmark"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${solicitudes == null || solicitudes.isEmpty()}" style="text-align:center; padding:3rem;">
+                <i class="fas fa-inbox fa-3x text-muted mb-3" style="opacity: 0.5;"></i>
+                <h4 class="text-muted">No se encontraron solicitudes con estos filtros.</h4>
+            </div>
+
+            <div class="table-footer" th:if="${totalPages > 0}">
+                <div class="showing-text">
+                    Mostrando <span th:text="${from}">1</span>–<span th:text="${to}">10</span>
+                    de <span th:text="${totalElements}">0</span> solicitudes.
+                </div>
+
+                <div class="pagination" th:if="${totalPages > 1}">
+                    <a class="pagination-btn"
+                       th:classappend="${page == 0} ? ' disabled'"
+                       th:href="@{/admin/gestor-solicitudes(page=0, size=${size}, idSolicitud=${filtroId}, estado=${filtroEstado}, fecha=${filtroFecha})}">«</a>
+
+                    <a class="pagination-btn"
+                       th:classappend="${!hasPrev} ? ' disabled'"
+                       th:href="@{/admin/gestor-solicitudes(page=${prevPage}, size=${size}, idSolicitud=${filtroId}, estado=${filtroEstado}, fecha=${filtroFecha})}">‹</a>
+
+                    <span class="pagination-btn active" th:text="${page + 1}">1</span>
+
+                    <a class="pagination-btn"
+                       th:classappend="${!hasNext} ? ' disabled'"
+                       th:href="@{/admin/gestor-solicitudes(page=${nextPage}, size=${size}, idSolicitud=${filtroId}, estado=${filtroEstado}, fecha=${filtroFecha})}">›</a>
+
+                    <a class="pagination-btn"
+                       th:classappend="${page + 1 == totalPages} ? ' disabled'"
+                       th:href="@{/admin/gestor-solicitudes(page=${totalPages - 1}, size=${size}, idSolicitud=${filtroId}, estado=${filtroEstado}, fecha=${filtroFecha})}">»</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="aprobarForm" th:method="post" style="display:none;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    </form>
+    <form id="rechazarForm" th:method="post" style="display:none;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    </form>
+
+    <script>
+        // Lógica de aprobación con SweetAlert
+        function aprobar(id) {
+            if (!id) return;
+            const doConfirm = () => {
+                const form = document.getElementById('aprobarForm');
+                form.action = `/admin/${encodeURIComponent(id)}/aprobar`;
+                form.submit();
+            };
+            if (window.Swal) {
+                Swal.fire({
+                    title: '¿Aprobar solicitud?',
+                    text: 'Esta acción validará la eliminación del hecho.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, aprobar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d'
+                }).then(result => { if (result.isConfirmed) doConfirm(); });
+            } else {
+                if (confirm('¿Aprobar solicitud?')) doConfirm();
+            }
+        }
+
+        // Lógica de rechazo con SweetAlert
+        function rechazar(id) {
+            if (!id) return;
+            const doConfirm = () => {
+                const form = document.getElementById('rechazarForm');
+                form.action = `/admin/${encodeURIComponent(id)}/rechazar`;
+                form.submit();
+            };
+            if (window.Swal) {
+                Swal.fire({
+                    title: '¿Rechazar solicitud?',
+                    text: 'La solicitud será desestimada.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, rechazar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d'
+                }).then(result => { if (result.isConfirmed) doConfirm(); });
+            } else {
+                if (confirm('¿Rechazar solicitud?')) doConfirm();
+            }
+        }
+    </script>
+</div>
+</html>

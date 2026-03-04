@@ -1,0 +1,334 @@
+<html th:replace="~{layout/base :: html}" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/panelControl.css}" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Badges de Tipo */
+        .badge-tipo { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
+        .badge-creacion { background-color: #e0f2fe; color: #0369a1; }
+        .badge-edicion { background-color: #fef3c7; color: #b45309; }
+
+        /* Badges de Estado */
+        .badge-estado { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
+        .estado-pendiente { background-color: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; }
+        .estado-aceptada  { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .estado-rechazada { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+        /* Botones de acción */
+        .btn-accept { background-color: #dcfce7; color: #15803d; border: none; padding: 5px; border-radius: 4px; cursor: pointer;}
+        .btn-accept:hover { background-color: #bbf7d0; }
+        .btn-reject { background-color: #fee2e2; color: #b91c1c; border: none; padding: 5px; border-radius: 4px; cursor: pointer;}
+        .btn-reject:hover { background-color: #fecaca; }
+
+        /* Estilos Paginación y Filtros */
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            color: #4b5563;
+            cursor: pointer;
+            user-select: none;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            background: #fff;
+        }
+        .pagination-info {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        .pagination-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .btn-page {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn-page:hover:not(:disabled) {
+            background-color: #f3f4f6;
+        }
+        .btn-page:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</div>
+
+<div class="admin-layout" th:fragment="contenido" sec:authorize="hasRole('ADMIN')">
+
+    <main class="admin-main">
+        <div class="dashboard-header">
+            <h1 th:text="${titulo}">Gestión de Solicitudes</h1>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #0ea5e9;"><i class="fas fa-plus-circle"></i></div>
+                <div class="stat-content">
+                    <h3>Creaciones Pendientes</h3>
+                    <div class="stat-number" th:text="${countCreacion} ?: 0">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #f59e0b;"><i class="fas fa-edit"></i></div>
+                <div class="stat-content">
+                    <h3>Ediciones Pendientes</h3>
+                    <div class="stat-number" th:text="${countEdicion} ?: 0">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="section-header">
+                <h3>Historial de Solicitudes</h3>
+                <div class="section-actions">
+                    <div class="filter-controls">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" id="chkPendientes" onchange="applyFilters()">
+                            Ver solo Pendientes
+                        </label>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Buscar..." onkeyup="applyFilters()"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="admin-table" id="solicitudesTable">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Estado</th>
+                        <th>Tipo</th>
+                        <th>Fecha</th>
+                        <th>Hecho / Título</th>
+                        <th>Contribuyente</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tableBody">
+
+                    <tr th:if="${solicitudes == null or solicitudes.isEmpty()}">
+                        <td colspan="7" class="text-center py-5">
+                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No hay solicitudes registradas</h5>
+                        </td>
+                    </tr>
+
+                    <tr th:each="solicitud : ${solicitudes}" class="solicitud-row">
+                        <td th:text="'#' + ${solicitud.id}">#123</td>
+
+                        <td th:data-status="${solicitud.estado}">
+                            <span class="badge-estado"
+                                  th:classappend="${solicitud.estado.toString() == 'PENDIENTE' ? 'estado-pendiente' :
+                                                   (solicitud.estado.toString() == 'ACEPTADA' ? 'estado-aceptada' : 'estado-rechazada')}"
+                                  th:text="${solicitud.estado}">
+                                PENDIENTE
+                            </span>
+                        </td>
+
+                        <td>
+                            <span th:class="'badge-tipo ' + (${solicitud.tipoSolicitud.toString() == 'CREACION'} ? 'badge-creacion' : 'badge-edicion')"
+                                  th:text="${solicitud.tipoSolicitud}">
+                                CREACION
+                            </span>
+                        </td>
+
+                        <td th:text="${solicitud.fechaSolicitud}">2023-10-25</td>
+
+                        <td th:text="${solicitud.hecho != null} ? ${solicitud.hecho.titulo} : 'Hecho no disponible'">
+                            Título
+                        </td>
+
+                        <td th:text="${solicitud.nombreContribuyente != null} ? ${solicitud.nombreContribuyente} : 'Desconocido'">
+                            Juan Pérez
+                        </td>
+
+                        <td>
+                            <div class="action-buttons" style="justify-content: center;">
+
+                                <a th:if="${solicitud.hecho != null}"
+                                   th:href="@{/hechos/vista-previa/{id}(id=${solicitud.hecho.id})}"
+                                   class="btn-action view"
+                                   target="_blank"
+                                   title="Previsualizar Hecho de Fuente">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+
+                                <th:block th:if="${solicitud.estado.toString() == 'PENDIENTE'}">
+                                    <button type="button"
+                                            class="btn-action btn-accept"
+                                            title="Aceptar"
+                                            th:attr="data-id=${solicitud.id}, data-tipo=${solicitud.tipoSolicitud}"
+                                            onclick="confirmarAccion(this.dataset.id, 'aceptar', this.dataset.tipo)">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn-action btn-reject"
+                                            title="Rechazar"
+                                            th:attr="data-id=${solicitud.id}, data-tipo=${solicitud.tipoSolicitud}"
+                                            onclick="confirmarAccion(this.dataset.id, 'rechazar', this.dataset.tipo)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </th:block>
+
+                                <span th:unless="${solicitud.estado.toString() == 'PENDIENTE'}"
+                                      class="text-muted" title="Solicitud cerrada">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination-container" id="paginationControls" th:if="${!solicitudes.isEmpty()}">
+                <div class="pagination-info">
+                    Mostrando <span id="startRow">0</span> a <span id="endRow">0</span> de <span id="totalRows">0</span> solicitudes
+                </div>
+                <div class="pagination-buttons">
+                    <button class="btn-page" id="btnPrev" onclick="changePage(-1)">Anterior</button>
+                    <button class="btn-page" id="btnNext" onclick="changePage(1)">Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <form id="actionForm" method="post" style="display:none;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    </form>
+
+    <script>
+        // --- Variables de Paginación ---
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let filteredRows = [];
+
+        // --- Al cargar la página ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const allRows = Array.from(document.querySelectorAll('.solicitud-row'));
+            filteredRows = allRows;
+            renderTable();
+        });
+
+        // --- Lógica de Filtrado ---
+        function applyFilters() {
+            const searchInput = document.getElementById("searchInput");
+            const chkPendientes = document.getElementById("chkPendientes");
+
+            // Validación por si los elementos no existen aún
+            if (!searchInput || !chkPendientes) return;
+
+            const searchText = searchInput.value.toUpperCase();
+            const onlyPending = chkPendientes.checked;
+            const allRows = Array.from(document.querySelectorAll('.solicitud-row'));
+
+            filteredRows = allRows.filter(row => {
+                const statusCell = row.querySelector('[data-status]');
+                const status = statusCell ? statusCell.getAttribute('data-status') : '';
+
+                if (onlyPending && status !== 'PENDIENTE') return false;
+
+                const textContent = row.innerText.toUpperCase();
+                if (searchText && textContent.indexOf(searchText) === -1) return false;
+
+                return true;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        // --- Lógica de Renderizado y Paginación ---
+        function renderTable() {
+            const allRowsDOM = document.querySelectorAll('.solicitud-row');
+
+            // 1. Ocultar TODAS las filas primero
+            allRowsDOM.forEach(row => row.style.display = 'none');
+
+            // 2. Calcular índices
+            const totalItems = filteredRows.length;
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+
+            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = Math.min(startIndex + rowsPerPage, totalItems);
+
+            // 3. Mostrar filas correspondientes
+            for (let i = startIndex; i < endIndex; i++) {
+                if (filteredRows[i]) {
+                    filteredRows[i].style.display = '';
+                }
+            }
+
+            // --- CORRECCIÓN DEL ERROR ---
+            // Verificamos si los controles de paginación existen antes de intentar escribir en ellos.
+            const startRowEl = document.getElementById('startRow');
+
+            if (startRowEl) {
+                startRowEl.innerText = totalItems === 0 ? 0 : startIndex + 1;
+                document.getElementById('endRow').innerText = endIndex;
+                document.getElementById('totalRows').innerText = totalItems;
+
+                const btnPrev = document.getElementById('btnPrev');
+                const btnNext = document.getElementById('btnNext');
+
+                if (btnPrev) btnPrev.disabled = (currentPage === 1);
+                if (btnNext) btnNext.disabled = (currentPage === totalPages || totalPages === 0);
+            }
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            renderTable();
+        }
+
+        // --- Lógica de SweetAlert ---
+        function confirmarAccion(id, accion, tipo) {
+            const esAceptar = accion === 'aceptar';
+            const verbo = esAceptar ? 'Aceptar' : 'Rechazar';
+            const colorBtn = esAceptar ? '#16a34a' : '#d33';
+
+            Swal.fire({
+                title: `¿${verbo} solicitud?`,
+                text: esAceptar ? "Se aplicarán los cambios." : "Se descartará la solicitud.",
+                icon: esAceptar ? 'question' : 'warning',
+                showCancelButton: true,
+                confirmButtonText: `Sí, ${accion}`,
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: colorBtn
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.getElementById('actionForm');
+                    form.action = `/admin/solicitudes-edicion/${id}/${accion}`;
+                    form.submit();
+                }
+            });
+        }
+    </script>
+</div>
+</html>

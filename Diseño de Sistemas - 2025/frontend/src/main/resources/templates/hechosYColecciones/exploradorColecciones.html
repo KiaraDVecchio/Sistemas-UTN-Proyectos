@@ -1,0 +1,105 @@
+<html th:replace="~{layout/base :: html}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/exploradorColecciones.css}" />
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</div>
+<div class="colecciones" style="margin: 40px;" th:fragment="contenido" >
+    <div class="page-header">
+        <h1 class="page-title" th:text="${titulo}"></h1>
+        <p class="page-description" th:text="${descripcion}"></p>
+    </div>
+
+    <div th:if="${colecciones == null || colecciones.isEmpty()}" class="text-center py-5">
+        <i class="fa-regular fa-folder-open fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">No hay colecciones registradas</h5>
+    </div>
+
+    <div class="collections-grid" th:if="${colecciones != null && !colecciones.isEmpty()}">
+        <div class="collection-card" th:each="coleccion : ${colecciones}">
+            <h3 class="collection-title" th:text="${coleccion.titulo}">Título</h3>
+            <p class="collection-description" th:text="${coleccion.descripcion}"></p>
+            <div class="collection-meta">
+                Cantidad de hechos:
+                <span th:text=" ${coleccion.hechoIds != null ? coleccion.hechoIds.size() : 0}">0</span>
+            </div>
+            <div class="collection-meta">
+                Cantidad de vistas:
+                <span th:text=" ${coleccion.cantVistas}">0</span>
+            </div>
+            <div class="collection-actions">
+                <a class="btn btn-ver-hechos"
+                   th:href="@{/colecciones/{handle}(handle=${coleccion.handle})}"
+                   th:attr="data-handle=${coleccion.handle}">
+                    Ver Hechos
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="pagination-container" th:if="${totalPages > 0}" style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee;">
+        <div class="showing-text" style="color: #666; font-size: 0.9rem;">
+            Mostrando <span th:text="${from}">1</span>–<span th:text="${to}">9</span>
+            de <span th:text="${totalElements}">0</span> colecciones.
+        </div>
+
+        <div class="pagination" th:if="${totalPages > 1}" style="display: flex; gap: 5px; justify-content: center; margin-top: 10px;">
+            <a class="pagination-btn"
+               th:classappend="${page == 0} ? ' disabled'"
+               th:href="@{|/colecciones?page=0&size=${size}|}">«</a>
+
+            <a class="pagination-btn"
+               th:classappend="${!hasPrev} ? ' disabled'"
+               th:href="@{|/colecciones?page=${prevPage}&size=${size}|}">‹</a>
+
+            <span class="pagination-btn active" th:text="${page + 1}">1</span>
+
+            <a class="pagination-btn"
+               th:classappend="${!hasNext} ? ' disabled'"
+               th:href="@{|/colecciones?page=${nextPage}&size=${size}|}">›</a>
+
+            <a class="pagination-btn"
+               th:classappend="${page + 1 == totalPages} ? ' disabled'"
+               th:href="@{|/colecciones?page=${totalPages - 1}&size=${size}|}">»</a>
+        </div>
+    </div>
+
+    <script>
+        // Tu script existente de sumar vistas se mantiene igual
+        document.addEventListener('DOMContentLoaded', () => {
+            const csrfMeta = document.querySelector('meta[name="_csrf"]');
+            const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+            const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : null;
+            const csrfHeader = csrfHeaderMeta ? csrfHeaderMeta.getAttribute('content') : 'X-CSRF-TOKEN';
+
+            document.querySelectorAll('.btn-ver-hechos').forEach(anchor => {
+                anchor.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    const handle = anchor.dataset.handle;
+                    const targetHref = anchor.href;
+
+                    if (!handle) {
+                        window.location.href = targetHref;
+                        return;
+                    }
+                    const postUrl = `/colecciones/${encodeURIComponent(handle)}/sumarVista`;
+                    const body = '';
+
+                    fetch(postUrl, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            ...(csrfToken ? { [csrfHeader]: csrfToken } : {})
+                        },
+                        body: body,
+                        keepalive: true
+                    })
+                        .catch(err => console.warn('Error vista:', err))
+                        .finally(() => window.location.href = targetHref);
+                });
+            });
+        });
+    </script>
+</div>
+</html>

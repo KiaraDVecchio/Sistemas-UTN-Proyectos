@@ -1,0 +1,213 @@
+@startuml
+
+interface Criterio {
+    +cumpleCriterio(hecho: Hecho): boolean
+}
+
+
+class CriterioTitulo implements Criterio{
+    -titulo: String
+
+    +cumpleCriterio(hecho: Hecho): boolean
+}
+
+class CriterioDescripcion implements Criterio{
+    -descripcion: String
+
+    +cumpleCriterio(hecho: Hecho): boolean
+}
+
+class CriterioCategoria implements Criterio{
+    -categoria: String
+
+    +cumpleCriterio(hecho: Hecho): boolean
+}
+
+class CriterioLugar implements Criterio {
+    -ubicacion: Ubicacion
+    -rangoMaximo: Integer
+
+    +cumpleCriterio(hecho: Hecho): boolean
+}
+
+class CriterioFechaAcontecimiento implements Criterio{
+    -desde: LocalDate
+    -hasta: LocalDate
+
+    +cumpleCriterio(hecho: Hecho): boolean
+}
+
+class CriterioFechaCarga implements Criterio{
+    -desde: LocalDate
+    -hasta: LocalDate
+
+    +cumpleCriterio(hecho: Hecho): boolean
+}
+
+class CriterioOrigen implements Criterio{
+    -origen: Origen
+
+    +cumpleCriterio(hecho: Hecho): boolean
+}
+
+abstract class Fuente {
+    +getHechos(): List<HechoDTO>
+    +getTipo(): TipoFuente
+}
+
+class Coleccion {
+    -titulo: String
+    -descripcion: String
+    -fuentes: Set<Fuente>
+    -criterios: Set<Criterio>
+    -hechosDeLaColeccion: List<Hecho>
+    -handle: String
+    -algoritmoDeConsenso: TipoAlgoritmoDeConsenso
+    +agregarHechos(hechos: List<Hecho>): void
+    +cumpleLosCriterios(hecho: Hecho): boolean
+    +noFueEliminado(hecho: Hecho): boolean
+    +agregarCriterios(criterio: Criterio...): void
+    +agregarFuentes(fuente: Fuente...): void
+}
+
+enum TipoAlgoritmoDeConsenso{
+      MAYORIA_SIMPLE
+      MULTIPLES_MENCIONES
+      CONSENSO_ABSOLUTO
+}
+
+class Hecho {
+    -titulo: String
+    -descripcion: String
+    -categoria: Categoria
+    -ubicacion: Ubicacion
+    -fecha_acontecimiento: LocalDate
+    -fecha_carga: LocalDate
+    -origen: Origen
+    -fueEliminado: boolean
+    -etiquetas: Set<Etiqueta>
+    -fuenteExterna: String
+    -consensuado: boolean
+
+    +agregarEtiqueta(etiqueta: Etiqueta): void
+}
+
+class Categoria {
+    -nombre: String
+}
+
+enum Origen {
+    CARGA_MANUAL
+    PROVENIENTE_DE_DATASET
+    PROVISTO_POR_CONTRIBUYENTE
+}
+
+enum TipoFuente {
+    ESTATICA
+    DINAMICA
+    PROXY
+}
+
+
+class Etiqueta {
+    -nombre: String
+
+}
+
+class Solicitud {
+    -hecho: Hecho
+    -justificacion: String
+    -estado: EstadoSolicitud
+    -fechaEntrada: LocalDateTime
+    -fechaAtencion: LocalDateTime
+
+    +cambiarEstado(nuevoEstado: EstadoSolicitud): void
+}
+
+
+enum EstadoSolicitud {
+    PENDIENTE
+    RECHAZADA
+    ACEPTADA
+}
+
+
+class Ubicacion{
+    -latitud: double
+    -longitud: double
+}
+
+interface IAlgoritmoDeConsenso{
+    +calcularConsenso(coleccion: Coleccion, hechosPorFuente: Map<Fuente, List<Hecho>>): void
+    +getTipo(): TipoAlgoritmoDeConsenso
+}
+
+class ConsensoAbsoluta implements IAlgoritmoDeConsenso{
+    +calcularConsenso(coleccion: Coleccion, hechosPorFuente: Map<Fuente, List<Hecho>>): void
+    +verificarConsensoAbsoluto(titulo: String, fuentesColeccion: Set<Fuente>, hechosPorFuente: Map<Fuente, List<Hecho>>): boolean
+    +sonHechosEquivalentes(hecho1: Hecho,  hecho2: Hecho): boolean
+    +marcarTodosLosHechosComoNoConsensuados(coleccion: Coleccion): void
+}
+
+class ConsensoMayoriaSimple implements IAlgoritmoDeConsenso{
+    +calcularConsenso(coleccion: Coleccion, hechosPorFuente: Map<Fuente, List<Hecho>>): void
+    +contarHechosPorContenido(titulo: String, fuentesColeccion: Set<Fuente>, Map<Fuente, hechosPorFuente: List<Hecho>>): Map<String, Integer>
+    +generarClaveContenido(hecho: Hecho): String
+    +marcarHechosConMayoria(hechos: List<Hecho>, conteoHechosPorContenido: Map<String, Integer>, mayoriaRequerida: Integer): void
+    +marcarTodosLosHechosComoNoConsensuados(coleccion: Coleccion): void
+}
+
+class ConsensoMultiplesMenciones implements IAlgoritmoDeConsenso{
+    +calcularConsenso(coleccion: Coleccion, hechosPorFuente: Map<Fuente, List<Hecho>>): void
+    +verificarConsensoMultiplesMenciones(titulo: String, fuentesColeccion: Set<Fuente>, hechosPorFuente: Map<Fuente, List<Hecho>>): void
+    +generarClaveContenido(hecho: Hecho): String
+    +marcarTodosLosHechosComoNoConsensuados(coleccion: Coleccion): void
+}
+
+class AlgoritmoDeConsensoFactory{
+    +resolver(tipo: TipoAlgoritmoDeConsenso): IAlgoritmoDeConsenso
+}
+
+interface IModoDeNavegacion{
+    +aplicarModo(hechos: List<Hecho>): List<Hecho>
+    +getTipo(): TipoDeModoNavegacion
+}
+
+class ModoCurado implements IModoDeNavegacion{
+    +aplicarModo(hechos: List<Hecho>): List<Hecho>
+    +getTipo(): TipoDeModoNavegacion
+}
+
+class ModoIrrestricto implements IModoDeNavegacion{
+    +aplicarModo(hechos: List<Hecho>): List<Hecho>
+    +getTipo(): TipoDeModoNavegacion
+}
+
+class ModoDeNavegacionFactory{
+    -modos: Map<TipoDeModoNavegacion, IModoDeNavegacion>;
+    +resolver(tipo: TipoDeModoNavegacion): IModoDeNavegacion
+}
+
+enum TipoDeModoNavegacion{
+  CURADO
+  IRRESTRICTA
+}
+
+IAlgoritmoDeConsenso --> TipoAlgoritmoDeConsenso
+IModoDeNavegacion --> Hecho
+IModoDeNavegacion --> TipoDeModoNavegacion
+Coleccion --> "*" Criterio
+Coleccion --> "*" Hecho
+Coleccion --> "*" Fuente
+Hecho --> Origen
+Hecho --> "*" Etiqueta
+Solicitud --> Hecho
+Solicitud --> EstadoSolicitud
+Hecho --> Ubicacion
+Hecho --> Categoria
+Fuente --> TipoFuente
+Coleccion --> TipoAlgoritmoDeConsenso
+AlgoritmoDeConsensoFactory --> IAlgoritmoDeConsenso
+ModoDeNavegacionFactory --> IModoDeNavegacion
+
+@enduml

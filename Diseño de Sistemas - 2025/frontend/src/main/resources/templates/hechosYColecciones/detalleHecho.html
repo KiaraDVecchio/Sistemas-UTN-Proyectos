@@ -1,0 +1,203 @@
+<html th:replace="~{layout/base :: layout}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/detalleHecho.css(v=${#dates.createNow().time})}"/>
+</div>
+
+<div class="container page-detalle" th:fragment="contenido">
+
+    <div class="breadcrumb">
+        <a th:href="@{/inicio}"> Inicio </a> ›
+        <a th:href="@{/colecciones}"> Colecciones </a> ›
+        <span th:if="${coleccionTitulo}"> </span>
+        <a th:if="${coleccionTitulo}"
+           th:href="@{/colecciones/{handle}(handle=${coleccionHandle})}"
+           th:text="${coleccionTitulo}">Colección</a>
+        <span>Detalle del hecho</span>
+    </div>
+
+    <div class="fact-container">
+        <div class="fact-main">
+            <div class="fact-header">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <h1 class="fact-title mb-0" th:text="${hecho.titulo}">Título del hecho</h1>
+                    <span th:if="${hecho.fueEliminado}" class="badge bg-danger fs-6">Eliminado</span>
+                </div>
+
+                <div class="fact-category" th:text="${hecho.categoria}">Categoría</div>
+
+                <div class="fact-status">
+                    <div class="consensus-indicator">
+                        <div class="consensus-dot"
+                             th:classappend="${hecho.consensuado} ? 'consensus-verified' : 'consensus-unverified'">
+                        </div>
+
+                        <span>
+                            <strong>Estado:</strong>
+                            <span th:text="${hecho.consensuado} ? 'Verificado por consenso' : 'Sin verificar'"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fact-content">
+                <section>
+                    <h3 style="margin-bottom: 1rem; color: #2c3e50;">Descripción</h3>
+                    <p class="fact-description" th:text="${hecho.descripcion}">
+                        Descripción del hecho...
+                    </p>
+                </section>
+
+                <section class="multimedia-section">
+                    <h3 class="multimedia-title">Contenido Multimedia</h3>
+
+                    <div class="multimedia-grid"
+                         th:if="${nombresMultimedia != null and !#lists.isEmpty(nombresMultimedia)}">
+
+                        <div class="multimedia-item"
+                             th:each="name : ${nombresMultimedia}"
+                             th:with="ext=${#strings.toLowerCase(#strings.substring(name, name.lastIndexOf('.') + 1))},
+                                                    isImg=${#lists.contains(extensionesImagen, ext)},
+                                                    fullUrl=${#strings.startsWith(name,'http') ? name : backendOrigin + (name.startsWith('/') ? name : '/' + name)},
+                                                    fileOnly=${#strings.substring(name, name.lastIndexOf('/') + 1)}">
+
+                            <!-- Si es imagen: se muestra la imagen, sin texto de ruta -->
+                            <img th:if="${isImg}"
+                                 th:src="${fullUrl}"
+                                 alt="Imagen del hecho"
+                                 style="width:100%;height:auto;display:block;border-radius:8px;"/>
+
+                            <!-- Si NO es imagen: icono y nombre del archivo (sin ruta) -->
+                            <div th:unless="${isImg}" class="multimedia-placeholder" style="font-size:2rem;">📄</div>
+                            <div th:unless="${isImg}" th:text="${fileOnly}" style="margin-top:.25rem;"></div>
+
+                        </div>
+                    </div>
+
+                    <div class="multimedia-item"
+                         th:if="${nombresMultimedia == null or #lists.isEmpty(nombresMultimedia)}">
+                        <div class="multimedia-placeholder">—</div>
+                        <div>No hay archivos adjuntos</div>
+                    </div>
+                </section>
+
+                <a class="btn btn-danger"
+                   th:if="${!hecho.fueEliminado}"
+                   th:href="@{/solicitud/{hechoId}(hechoId=${hecho.id})}">
+                    Solicitar Eliminación
+                </a>
+
+                <button class="btn btn-secondary disabled"
+                        th:if="${hecho.fueEliminado}"
+                        disabled>
+                    Hecho Eliminado
+                </button>
+            </div>
+        </div>
+
+        <div class="fact-sidebar">
+            <div class="info-card">
+                <h3>Información Básica</h3>
+                <table class="metadata-table">
+                    <tr>
+                        <td>Fecha del acontecimiento:</td>
+                        <td><strong
+                                th:text="${#temporals.format(hecho.fechaAcontecimiento, 'dd/MM/yyyy')}">12/08/2025</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Hora del acontecimiento:</td>
+                        <td><strong th:text="${#temporals.format(hecho.fechaAcontecimiento, 'HH:mm')}">09:15</strong>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="info-card">
+
+
+                <div class="mapa-interactivo container">
+                    <div id="map"></div>
+                </div>
+
+
+                <a class="btn btn-mapa" th:href="@{/inicio#map-section}">Ver en Mapa Completo</a>
+            </div>
+        </div>
+        <div class="return-bar">
+            <a th:href="@{/colecciones}" class="return-link">← Volver a Colecciones</a>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const hecho = /*[[${hecho}]]*/ {};
+        /*]]>*/
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const mapContainer = document.getElementById('map');
+            if (!mapContainer) return;
+
+
+            if (hecho && hecho.latitud && hecho.longitud) {
+                const lat = Number(hecho.latitud);
+                const lng = Number(hecho.longitud);
+
+
+                if (Number.isFinite(lat) && Number.isFinite(lng)) {
+                    const map = L.map('map', { zoomControl: true }).setView([lat, lng], 10);
+
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(map);
+
+
+                    const marker = L.marker([lat, lng]).addTo(map);
+                    marker.bindPopup(`
+<div>
+<strong>${hecho.titulo || 'Hecho'}</strong><br/>
+${hecho.provincia || ''}<br/>
+${hecho.fechaAcontecimiento || ''}
+</div>
+`).openPopup();
+
+
+// Forzar recalculo visual después de renderizar
+                    setTimeout(() => map.invalidateSize(), 300);
+                } else {
+                    mapContainer.innerHTML = '<p style="text-align:center; color:#666;">Sin coordenadas válidas para mostrar el mapa.</p>';
+                }
+            } else {
+                mapContainer.innerHTML = '<p style="text-align:center; color:#666;">No hay datos geográficos disponibles.</p>';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.location.hash === '#map-section') {
+                const mapSection = document.getElementById('map-section');
+                if (mapSection) {
+                    mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+    </script>
+
+
+    <style>
+        #map {
+            width: 100%;
+            height: 300px;
+            border-radius: 8px;
+            margin-top: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            z-index: 1; /* asegura que no quede debajo de otros elementos */
+        }
+    </style>
+</div>
+</html>
+
+

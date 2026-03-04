@@ -1,0 +1,76 @@
+<html th:replace="~{layout/base :: layout}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/detalleSolicitud.css}" />
+
+</div>
+
+<body>
+<main>
+    <div class="container" th:fragment="contenido">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a th:href="@{/inicio}">Inicio</a> ›
+            <a th:href="@{/admin/gestor-solicitudes}">Gestor de solicitudes</a> ›
+            Detalle de la Solicitud
+        </div>
+
+        <!-- Contenedor Principal -->
+        <div class="request-container">
+
+            <!-- Columna Izquierda: Resumen del Hecho -->
+            <div class="fact-summary-card">
+                <div class="fact-header">
+                    <h2 class="fact-title">Hecho a eliminar</h2>
+                    <h3 class="fact-subtitle" th:text="${hecho.titulo}">Incendio forestal activo en Parque Nacional Los Glaciares</h3>
+                    <div class="fact-category" th:text="${hecho.categoria}">Incendio forestal</div>
+                </div>
+                <div class="fact-content">
+                    <p class="fact-description" th:text="${hecho.descripcion}">
+                        Incendio de gran magnitud detectado en el sector norte del Parque Nacional Los Glaciares. Las llamas han consumido aproximadamente 1,200 hectáreas de bosque nativo...
+                    </p>
+                    <a th:href="@{/hechos/{id}(id=${hecho.id})}" class="btn btn-secondary" style="width: 100%; text-align: center;">Ver Hecho Completo</a>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Detalles de la Solicitud -->
+            <div class="request-details-card">
+                <div class="info-card">
+                    <h3>Detalles de la Solicitud</h3>
+                    <table class="metadata-table">
+                        <tr>
+                            <td>Fecha de Entrada:</td>
+                            <td><strong th:text="${solicitud.fechaEntrada}">15 de septiembre, 2025 - 14:30 hs</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Estado:</td>
+                            <td><span class="status-badge status-pending" th:text="${solicitud.estado}">PENDIENTE</span></td>
+                            <!-- Otros estados:
+                             <td><span class="status-badge status-accepted">ACEPTADA</span></td>
+                             <td><span class="status-badge status-rejected">RECHAZADA</span></td>
+                            -->
+                        </tr>
+                        <tr>
+                            <td>Fecha de Atención:</td>
+                            <td><strong th:text="${solicitud.fechaAtencion}">--</strong></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="info-card justification-card">
+                    <h3>Justificación de la Solicitud</h3>
+                    <p class="justification-text" th:text="${solicitud.justificacion}">
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navegación -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <a th:href="@{/admin/gestor-solicitudes}" class="btn btn-secondary">← Volver al gestor de solicitudes</a>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

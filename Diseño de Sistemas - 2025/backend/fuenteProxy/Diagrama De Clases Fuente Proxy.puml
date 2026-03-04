@@ -1,0 +1,107 @@
+@startuml
+
+class Hecho {
+    -titulo: String
+    -descripcion: String
+    -categoria: Categoria
+    -ubicacion: Ubicacion
+    -fecha_acontecimiento: LocalDate
+    -fecha_carga: LocalDate
+    -origen: Origen
+    -fueEliminado: boolean
+    -etiquetas: Set<Etiqueta>
+
+    +agregarEtiqueta(etiqueta: Etiqueta): void
+}
+
+class Categoria {
+    -nombre: String
+}
+
+enum Origen {
+    CARGA_MANUAL
+    PROVENIENTE_DE_DATASET
+    PROVISTO_POR_CONTRIBUYENTE
+}
+
+class Etiqueta {
+    -nombre: String
+
+}
+
+class Ubicacion{
+    -latitud: double
+    -longitud: double
+}
+
+interface IFuenteProxyAdapter {
+    +getHechos(): List<Hecho>
+}
+
+class AdapterCatedra implements IFuenteProxyAdapter{
+    -hechos: List<Hecho>
+    -apiCatedraService: ApiCatedraService
+
+    +getHechos(): List<Hecho>
+}
+
+class AdapterInstanciaMetaMapa implements IFuenteProxyAdapter{
+    -hechos: List<Hecho>
+    -apiMetaMapaService: ApiMetaMapaService
+
+    +getHechos(): List<Hecho>
+}
+
+class ApiCatedraService{
+    -webClient: WebClient
+
+    +obtenerHechos(): Mono<List<HechoDTO>>
+    +obtenerHechosPorId(): Mono<HechoDTO>
+}
+
+class ApiMetaMapaService{
+    -webClient: WebClient
+
+    +obtenerHechos(): Mono<List<HechoDTO>>
+    +obtenerColeccionPorId(): Mono<ColeccionDTO>
+    +obtenerColecciones(): Mono<List<ColeccionDTO>>
+    +crearSolicitud(): Mono<List<SolicitudDTO>>
+}
+
+class Solicitud {
+    -hecho: Hecho
+    -justificacion: String
+    -estado: EstadoSolicitud
+    -administradorQueAtendio: Administrador
+    -fechaEntrada: LocalDateTime
+    -fechaAtencion: LocalDateTime
+
+    +cambiarEstado(nuevoEstado: EstadoSolicitud): void
+}
+
+enum EstadoSolicitud {
+    PENDIENTE
+    RECHAZADA
+    ACEPTADA
+}
+
+class Administrador {
+    -nombre: String
+    -apellido: String
+}
+
+Hecho --> Origen
+Hecho --> "*" Etiqueta
+
+Hecho --> Ubicacion
+Hecho --> Categoria
+
+IFuenteProxyAdapter --> Hecho
+AdapterInstanciaMetaMapa --> ApiMetaMapaService
+AdapterCatedra --> ApiCatedraService
+
+Solicitud --> Hecho
+Solicitud --> EstadoSolicitud
+Solicitud --> Administrador
+
+@enduml

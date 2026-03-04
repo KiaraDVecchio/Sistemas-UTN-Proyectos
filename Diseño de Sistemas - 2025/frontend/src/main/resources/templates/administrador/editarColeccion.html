@@ -1,0 +1,451 @@
+<html th:replace="~{layout/base :: layout}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/crearColeccion.css}" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</div>
+
+<div class="container admin-main" th:fragment="contenido">
+    <div class="page-header">
+        <div class="breadcrumb">
+            <a th:href="@{/admin/panel-control}">Panel Principal</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Editar Colección</span>
+        </div>
+        <h1 th:text="${coleccion.titulo}">Editar Colección</h1>
+    </div>
+
+    <div class="alert alert-danger" th:if="${mensaje != null and tipoMensaje == 'error'}" th:text="${mensaje}"></div>
+    <div class="alert alert-success" th:if="${mensaje != null and tipoMensaje == 'success'}" th:text="${mensaje}"></div>
+
+    <div class="form-container">
+        <form th:action="@{/admin/coleccion/{handle}/editar(handle=${coleccion.handle})}"
+              th:object="${coleccion}" method="post" class="collection-form">
+
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <section class="form-section">
+                <h2 class="section-title">Información General</h2>
+
+                <div class="criterio-block">
+                    <h3 class="subsection-title">Título</h3>
+                    <input id="titulo" type="text" class="form-input" th:field="*{titulo}" required>
+                </div>
+
+                <div class="criterio-block">
+                    <h3 class="subsection-title">Descripción</h3>
+                    <textarea id="descripcion" class="form-textarea" rows="4" th:field="*{descripcion}"></textarea>
+                </div>
+
+                <div class="criterio-block">
+                    <label class="form-label" style="font-size: 0.8rem; color: #666;">Identificador único (Handle)</label>
+                    <input type="text" class="form-input" th:field="*{handle}" readonly style="background-color: #f0f0f0;">
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2 class="section-title">Fuentes de Datos</h2>
+                <div class="subsection">
+                    <h3 class="subsection-title">Fuentes activas</h3>
+                    <div id="fuentes-toggle" class="fuentes-toggle" style="display:flex; gap:1rem;">
+                        <button type="button" class="btn-fuente-toggle" data-tipo="DINAMICA">
+                            <i class="fas fa-bolt"></i> Dinámica
+                        </button>
+                        <button type="button" class="btn-fuente-toggle" data-tipo="ESTATICA">
+                            <i class="fas fa-database"></i> Estática
+                        </button>
+                        <button type="button" class="btn-fuente-toggle" data-tipo="PROXY">
+                            <i class="fas fa-random"></i> Proxy
+                        </button>
+                    </div>
+                    <input type="hidden" id="fuenteTipos" name="fuenteTipos">
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2 class="section-title">Criterios de Pertenencia</h2>
+
+                <div class="form-group">
+                    <label for="criterioSelect" class="subsection-title">Agregar nuevo criterio</label>
+                    <select id="criterioSelect" class="form-select">
+                        <option value="">+ Seleccionar criterio</option>
+                        <option value="categoria">Categoría</option>
+                        <option value="descripcion">Descripción</option>
+                        <option value="fecha_acontecimiento">Fecha del Acontecimiento</option>
+                        <option value="fecha_carga">Fecha de Carga</option>
+                        <option value="lugar">Lugar Geográfico</option>
+                        <option value="origen">Origen</option>
+                        <option value="titulo">Título</option>
+                    </select>
+                </div>
+
+                <div id="criterios-container"></div>
+            </section>
+
+            <section class="form-section">
+                <h2 class="section-title">Configuración Adicional</h2>
+                <div class="form-group">
+                    <label class="form-label" for="consenso">Algoritmo de Consenso</label>
+                    <select id="consenso" class="form-select" th:field="*{algoritmoDeConsenso}">
+                        <option value="">-- Seleccionar --</option>
+                        <option th:each="a : ${algoritmosDisponibles}" th:value="${a}" th:text="${a}"></option>
+                    </select>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <a th:href="@{/admin/panel-control}" class="btn-cancel">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-create">
+                    <i class="fas fa-check"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div id="criterio-templates" style="display:none;">
+
+        <div data-template="categoria" class="criterio-block">
+            <h3 class="subsection-title">Filtrar por Categoría</h3>
+            <div class="dynamic-field">
+                <div class="field-group">
+                    <select name="criterioCategoria[]" class="form-select input-valor">
+                        <option value="">-- Seleccione una categoría --</option>
+                        <option th:each="cat : ${listaCategorias}" th:value="${cat.nombre}" th:text="${cat.nombre}"></option>
+                    </select>
+                    <button type="button" class="btn-remove-field"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <hr>
+        </div>
+
+        <div data-template="descripcion" class="criterio-block">
+            <h3 class="subsection-title">Filtrar por Descripción</h3>
+            <div class="dynamic-field">
+                <div class="field-group">
+                    <input type="text" name="criterioDescripcion[]" class="form-input input-valor" placeholder="Ej: Contiene 'incendio'">
+                    <button type="button" class="btn-remove-field"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <hr>
+        </div>
+
+        <div data-template="fecha_acontecimiento" class="criterio-block">
+            <h3 class="subsection-title">Filtrar por Fecha del Acontecimiento</h3>
+            <div class="dynamic-field">
+                <div class="field-group" style="flex-wrap: wrap;">
+                    <input type="date" name="criterioFechaAcontecimientoDesde[]" class="form-input input-desde">
+                    <input type="date" name="criterioFechaAcontecimientoHasta[]" class="form-input input-hasta">
+                    <button type="button" class="btn-remove-field"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <hr>
+        </div>
+
+        <div data-template="fecha_carga" class="criterio-block">
+            <h3 class="subsection-title">Filtrar por Fecha de Carga</h3>
+            <div class="dynamic-field">
+                <div class="field-group" style="flex-wrap: wrap;">
+                    <input type="date" name="criterioFechaCargaDesde[]" class="form-input input-desde">
+                    <input type="date" name="criterioFechaCargaHasta[]" class="form-input input-hasta">
+                    <button type="button" class="btn-remove-field"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <hr>
+        </div>
+
+        <div data-template="lugar" class="criterio-block">
+            <h3 class="subsection-title">Filtrar por Lugar Geográfico</h3>
+            <div class="dynamic-field">
+                <div class="form-row" style="display:flex; gap:1rem; margin-bottom:1rem;">
+                    <div style="flex:1">
+                        <label class="form-label">Radio (Km)</label>
+                        <input type="number" name="criterioLugarRango[]" class="form-input input-radio" placeholder="Ej: 5 (Opcional)">
+                    </div>
+                </div>
+
+                <label class="form-label">Seleccionar punto en el mapa (Opcional)</label>
+                <div class="map-container" style="height: 300px; width: 100%; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ccc;"></div>
+
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" name="criterioLugarLat[]" class="form-input input-lat" placeholder="Latitud" readonly style="background:#f9f9f9; font-size:0.8rem;">
+                    <input type="text" name="criterioLugarLon[]" class="form-input input-lon" placeholder="Longitud" readonly style="background:#f9f9f9; font-size:0.8rem;">
+                </div>
+
+                <button type="button" class="btn-remove-field" style="color: #dc3545; background: none; border: none; cursor: pointer;">
+                    <i class="fas fa-trash"></i> Eliminar Criterio
+                </button>
+            </div>
+            <hr>
+        </div>
+
+        <div data-template="origen" class="criterio-block">
+            <h3 class="subsection-title">Filtrar por Origen</h3>
+            <div class="dynamic-field">
+                <div class="field-group">
+                    <select name="criterioOrigen[]" class="form-select input-valor">
+                        <option value="">-- Seleccione un Origen --</option>
+                        <option th:each="origen : ${listaOrigenes}" th:value="${origen}" th:text="${origen}"></option>
+                    </select>
+                    <button type="button" class="btn-remove-field"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <hr>
+        </div>
+
+        <div data-template="titulo" class="criterio-block">
+            <h3 class="subsection-title">Filtrar por Título</h3>
+            <div class="dynamic-field">
+                <div class="field-group">
+                    <input type="text" name="criterioTitulo[]" class="form-input input-valor" placeholder="Texto en el título">
+                    <button type="button" class="btn-remove-field"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <hr>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", () => {
+
+            // 1. Obtener datos del backend (DTO)
+            const coleccionDTO = /*[[${coleccion}]]*/ {};
+
+            console.log("Datos cargados para edición:", coleccionDTO);
+
+            const selectCriterio = document.getElementById("criterioSelect");
+            const containerCriterios = document.getElementById("criterios-container");
+            const hiddenFuentes = document.getElementById("fuenteTipos");
+            const form = document.querySelector(".collection-form"); // Referencia al form
+
+            // Provincias (Hardcodeado o traído de algún lado)
+            const provinciasArg = [
+                "Buenos Aires", "Catamarca", "Chaco", "Chubut", "Ciudad Autónoma de Buenos Aires",
+                "Córdoba", "Corrientes", "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja",
+                "Mendoza", "Misiones", "Neuquén", "Río Negro", "Salta", "San Juan", "San Luis",
+                "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"
+            ];
+
+            // --- A. GESTIÓN DE FUENTES ---
+            const botonesFuentes = document.querySelectorAll(".btn-fuente-toggle");
+
+            const actualizarInputFuentes = () => {
+                const seleccionados = [...document.querySelectorAll(".btn-fuente-toggle.active")]
+                    .map(b => b.dataset.tipo);
+                hiddenFuentes.value = seleccionados.join(",");
+            };
+
+            botonesFuentes.forEach(boton => {
+                boton.addEventListener("click", () => {
+                    boton.classList.toggle("active");
+                    actualizarInputFuentes();
+                });
+            });
+
+            // Activar botones de fuentes según DTO
+            if (coleccionDTO.fuentes && Array.isArray(coleccionDTO.fuentes)) {
+                coleccionDTO.fuentes.forEach(f => {
+                    // f.tipo es lo que agregamos al DTO
+                    const tipo = f.tipo ? f.tipo : f;
+                    const btn = document.querySelector(`.btn-fuente-toggle[data-tipo="${tipo}"]`);
+                    if(btn) btn.classList.add("active");
+                });
+                actualizarInputFuentes();
+            }
+
+
+            // --- B. GESTIÓN DE CRITERIOS (UI) ---
+
+            function formatearFecha(fechaStr) {
+                if(!fechaStr) return "";
+                return fechaStr.split("T")[0];
+            }
+
+            function crearBloqueCriterio(tipo) {
+                const template = document.querySelector(`#criterio-templates [data-template="${tipo}"]`);
+                if (!template) return null;
+
+                const clone = template.cloneNode(true);
+                // Le ponemos un atributo data-tipo para identificarlo fácil al guardar
+                clone.dataset.tipoCriterio = tipo.toUpperCase(); // Backend espera MAYUSCULAS (CATEGORIA, TITULO...)
+
+                // Configurar eliminar
+                const btnEliminar = clone.querySelector(".btn-remove-field");
+                if(btnEliminar) {
+                    btnEliminar.addEventListener("click", () => clone.remove());
+                }
+
+                if (tipo === "lugar") {
+                    initMapaYProvincias(clone);
+                }
+                return clone;
+            }
+
+            selectCriterio.addEventListener("change", () => {
+                const tipo = selectCriterio.value;
+                if (!tipo) return;
+                const bloque = crearBloqueCriterio(tipo);
+                if(bloque) {
+                    containerCriterios.appendChild(bloque);
+                    bloque.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                selectCriterio.value = "";
+            });
+
+
+            // --- C. RECONSTRUCCIÓN VISUAL DE CRITERIOS EXISTENTES ---
+            if (coleccionDTO.criterios && Array.isArray(coleccionDTO.criterios)) {
+                coleccionDTO.criterios.forEach(criterio => {
+                    if(!criterio.tipoCriterio) return;
+                    const tipoFrontend = criterio.tipoCriterio.toLowerCase();
+                    const bloque = crearBloqueCriterio(tipoFrontend);
+
+                    if (bloque) {
+                        // Rellenar valores visuales
+                        const inputValor = bloque.querySelector(".input-valor");
+                        if(inputValor && criterio.valorString) inputValor.value = criterio.valorString;
+
+                        if(criterio.fechaDesde) {
+                            const iDesde = bloque.querySelector(".input-desde");
+                            if(iDesde) iDesde.value = formatearFecha(criterio.fechaDesde);
+                        }
+                        if(criterio.fechaHasta) {
+                            const iHasta = bloque.querySelector(".input-hasta");
+                            if(iHasta) iHasta.value = formatearFecha(criterio.fechaHasta);
+                        }
+
+                        if(tipoFrontend === "lugar") {
+                            if(criterio.provincia) bloque.querySelector(".input-provincia").value = criterio.provincia;
+                            if(criterio.rango) bloque.querySelector(".input-radio").value = criterio.rango;
+
+                            if(criterio.latitud != null && criterio.longitud != null) {
+                                bloque.querySelector(".input-lat").value = criterio.latitud;
+                                bloque.querySelector(".input-lon").value = criterio.longitud;
+                                const mapContainer = bloque.querySelector(".map-container");
+                                mapContainer.dataset.initLat = criterio.latitud;
+                                mapContainer.dataset.initLon = criterio.longitud;
+                            }
+                        }
+                        containerCriterios.appendChild(bloque);
+                    }
+                });
+            }
+
+            // --- D. LOGICA DE SUBMIT (¡AQUÍ ESTÁ LA SOLUCIÓN!) ---
+            // Interceptamos el envío para transformar los inputs visuales en la lista que Spring espera
+            form.addEventListener("submit", (e) => {
+                // Limpiamos cualquier input hidden anterior que hayamos generado (por si falla validación y reenvían)
+                document.querySelectorAll(".spring-list-input").forEach(el => el.remove());
+
+                const bloques = containerCriterios.querySelectorAll(".criterio-block");
+
+                bloques.forEach((bloque, index) => {
+                    const tipo = bloque.dataset.tipoCriterio; // "CATEGORIA", "TITULO", etc.
+
+                    // Función helper para crear input hidden
+                    const addHidden = (campo, valor) => {
+                        if(valor === null || valor === undefined) return;
+                        const input = document.createElement("input");
+                        input.type = "hidden";
+                        input.classList.add("spring-list-input"); // Marca para limpiar después
+                        // Esta es la magia: name="nuevosCriterios[0].tipoCriterio"
+                        input.name = `nuevosCriterios[${index}].${campo}`;
+                        input.value = valor;
+                        form.appendChild(input);
+                    };
+
+                    // 1. Campo Tipo (Obligatorio)
+                    addHidden("tipoCriterio", tipo);
+
+                    // 2. Campos según el tipo
+                    // Buscamos los inputs visuales dentro del bloque
+                    const inputValor = bloque.querySelector(".input-valor");
+                    const inputDesde = bloque.querySelector(".input-desde");
+                    const inputHasta = bloque.querySelector(".input-hasta");
+
+                    // Texto / Select simple (Categoria, Titulo, Descripcion, Origen)
+                    if(inputValor) {
+                        addHidden("valorString", inputValor.value);
+                    }
+
+                    // Fechas
+                    if(inputDesde) addHidden("fechaDesde", inputDesde.value);
+                    if(inputHasta) addHidden("fechaHasta", inputHasta.value);
+
+                    // Lugar
+                    if(tipo === "LUGAR") {
+                        const iLat = bloque.querySelector(".input-lat");
+                        const iLon = bloque.querySelector(".input-lon");
+                        const iRadio = bloque.querySelector(".input-radio");
+                        const iProv = bloque.querySelector(".input-provincia");
+
+                        if(iLat) addHidden("latitud", iLat.value);
+                        if(iLon) addHidden("longitud", iLon.value);
+                        if(iRadio) addHidden("rango", iRadio.value);
+                        if(iProv) addHidden("provincia", iProv.value);
+                    }
+                });
+
+                // Dejamos que el form se envíe normalmente.
+                // Ahora lleva inputs ocultos con formato nuevosCriterios[0].x, nuevosCriterios[1].x ...
+            });
+
+
+            // --- E. MAPA LEAFLET ---
+            function initMapaYProvincias(elementoClonado) {
+                const selectProv = elementoClonado.querySelector(".select-provincia");
+                if(selectProv && selectProv.options.length <= 1) {
+                    provinciasArg.forEach(p => {
+                        const opt = document.createElement("option");
+                        opt.value = p;
+                        opt.text = p;
+                        selectProv.appendChild(opt);
+                    });
+                    const inpProv = elementoClonado.querySelector(".input-provincia");
+                    if(inpProv && inpProv.value) selectProv.value = inpProv.value;
+                }
+
+                const mapDiv = elementoClonado.querySelector(".map-container");
+                if(!mapDiv) return;
+
+                const uniqueID = "map-" + Math.random().toString(36).substr(2, 9);
+                mapDiv.id = uniqueID;
+
+                setTimeout(() => {
+                    let initLat = mapDiv.dataset.initLat ? parseFloat(mapDiv.dataset.initLat) : -38.4161;
+                    let initLon = mapDiv.dataset.initLon ? parseFloat(mapDiv.dataset.initLon) : -63.6167;
+                    let zoom = mapDiv.dataset.initLat ? 10 : 4;
+
+                    const map = L.map(uniqueID).setView([initLat, initLon], zoom);
+                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19, attribution: '&copy; OpenStreetMap'
+                    }).addTo(map);
+
+                    let marcador = null;
+                    const inLat = elementoClonado.querySelector(".input-lat");
+                    const inLon = elementoClonado.querySelector(".input-lon");
+
+                    if(mapDiv.dataset.initLat) {
+                        marcador = L.marker([initLat, initLon]).addTo(map);
+                    }
+
+                    map.on('click', function(e) {
+                        const lat = e.latlng.lat.toFixed(6);
+                        const lng = e.latlng.lng.toFixed(6);
+                        if (marcador) marcador.setLatLng(e.latlng);
+                        else marcador = L.marker(e.latlng).addTo(map);
+                        if(inLat) inLat.value = lat;
+                        if(inLon) inLon.value = lng;
+                    });
+                    setTimeout(() => { map.invalidateSize(); }, 200);
+                }, 100);
+            }
+
+        });
+    </script>
+</div>
+</html>

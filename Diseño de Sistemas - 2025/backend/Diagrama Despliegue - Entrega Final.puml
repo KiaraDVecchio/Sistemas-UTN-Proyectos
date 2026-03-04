@@ -1,0 +1,112 @@
+@startuml
+' --- COFIGURACIÓN VISUAL ---
+skinparam componentStyle uml2
+' ortho: Líneas rectas tipo circuito (evita diagonales que cruzan todo)
+skinparam linetype ortho
+' Aumentamos la separación para dar lugar a las flechas
+skinparam nodesep 150
+skinparam ranksep 150
+
+skinparam node {
+    BackgroundColor #F3E5F5
+    BorderColor #4A148C
+    Padding 10
+}
+skinparam database {
+    BackgroundColor #FFF3E0
+    BorderColor #E65100
+}
+skinparam cloud {
+    BackgroundColor #FAFAFA
+}
+
+title Diagrama de Despliegue
+
+actor "Usuario" as User
+
+' --- Nodos Externos (Distribuidos para evitar cruces) ---
+cloud "API RAE" as ApiRae
+cloud "Sistemas Externos" as ExtSystems
+cloud "API Georef AR" as Georef
+
+' --- CONTENEDOR PRINCIPAL ---
+node "Plataforma Railway" as Railway {
+
+    frame "Frontend" {
+        component "Generador de Pantallas" as Front
+    }
+
+    frame "Backend Services" {
+        ' Definimos los componentes
+        component "Servicio Usuarios" as ServUsuarios
+        component "Servicio Agregador" as Agregador
+        component "Servicio Estadísticas" as Estadisticas
+    }
+
+    frame "Fuentes de Datos" {
+        component "Fuente Proxy" as FProx
+        component "Fuente Dinámica" as FDin
+        component "Fuente Estática" as FEst
+    }
+
+    frame "Persistencia" {
+        ' DBs alineadas bajo sus dueños
+        database "DB Usuarios" as DB_User
+        database "DB Dinámica" as DB_Din
+        database "DB Agregador" as DB_Agreg
+        database "DB Estática" as DB_Estata
+        database "DB Estadísticas" as DB_Est
+    }
+}
+
+' --- ALINEACIÓN FORZADA (Invisible pero crucial) ---
+' Esto crea 3 columnas virtuales: Izq, Centro, Der
+
+' Fila Backend: Usuarios (Izq) - Agregador (Centro) - Estadisticas (Der)
+ServUsuarios -[hidden]right- Agregador
+Agregador -[hidden]right- Estadisticas
+
+' Fila Fuentes: Proxy (Izq) - Dinámica (Centro) - Estática (Der)
+FProx -[hidden]right- FDin
+FDin -[hidden]right- FEst
+
+' Fila DBs: Aseguramos que DB Agregador quede al centro
+DB_User -[hidden]right- DB_Din
+DB_Din -[hidden]right- DB_Agreg
+DB_Agreg -[hidden]right- DB_Estata
+DB_Estata -[hidden]right- DB_Est
+
+' --- RELACIONES ---
+
+' 1. Usuario entra
+User -down-> Front : HTTPS
+
+' 2. Front distribuye (usando puntos cardinales para limpiar)
+Front -down-> ServUsuarios : HTTP
+Front -down-> Agregador : HTTP
+Front -down-> Estadisticas : HTTP
+
+' 3. Conexiones Horizontales del Agregador
+Agregador -left-> ApiRae : REST
+Agregador -right-> Georef : REST
+
+' 4. Estadísticas consume al Agregador (Flecha corta)
+Estadisticas -left-> Agregador : HTTP
+
+' 5. Agregador baja a las Fuentes (Verticales limpias)
+Agregador -down-> FDin : HTTP
+Agregador -down-> FEst : HTTP
+' Conexión cruzada a Proxy (se dibuja mejor con ortho)
+Agregador -down-> FProx : HTTP
+
+' 6. Salida del Proxy (Hacia la izquierda para no cruzar DBs)
+FProx -left-> ExtSystems : HTTP
+
+' 7. Persistencia (Bajadas directas)
+ServUsuarios -down-> DB_User
+Agregador -down-> DB_Agreg
+Estadisticas -down-> DB_Est
+FDin -down-> DB_Din
+FEst -down-> DB_Estata
+
+@enduml

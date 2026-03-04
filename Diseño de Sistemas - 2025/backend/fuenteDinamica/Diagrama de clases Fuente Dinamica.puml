@@ -1,0 +1,104 @@
+@startuml
+
+class Categoria {
+    - nombre: String
+    - id: Long
+}
+
+class ContenidoMultimedia {
+    - path: String
+    - idContenidoMultimedia: Long
+}
+
+class Administrador {
+    - nombre: String
+    - apellido: String
+}
+
+class Contribuyente {
+    - nombre: String
+    - apellido: String
+    - fechaDeNacimiento: LocalDate
+    + getEdad(): Integer
+}
+
+class Etiqueta {
+    - nombre: String
+    - id: Long
+}
+
+class Hecho {
+    - id: Long
+    - titulo: String
+    - descripcion: String
+    - categoria: Categoria
+    - ubicacion: Ubicacion
+    - fechaAcontecimiento: LocalDate
+    - fechaCarga: LocalDate
+    - origen: Origen
+    - fueEliminado: boolean
+    - etiquetas: Set<Etiqueta>
+    - idContribuyente: Long
+    - contenidosMultimedia: List<ContenidoMultimedia>
+    - estadoPrevio: HechoEstadoPrevio
+
+    + agregarEtiqueta(etiqueta: Etiqueta): void
+    + actualizarHecho(titulo: String, descripcion: String, categoria: Categoria, ubicacion: Ubicacion, fechaAcontecimiento: LocalDate): void
+    + getPathsMultimedia(List<ContenidoMultimedia> contenidos): List<String>
+}
+
+class HechoEstadoPrevio {
+    - descripcion: String
+    - categoria: Categoria
+    - ubicacion: Ubicacion
+    - fechaAcontecimiento: LocalDate
+    - contenidosMultimedia: List<ContenidoMultimedia>
+}
+
+class Solicitud {
+    - id: Long
+    - tipoSolicitud: TipoSolicitud
+    - hecho: Hecho
+    - estado: EstadoSolicitud
+    - fechaSolicitud: LocalDate
+    - fechaAtencion: LocalDate
+    - comentario: String
+    - idAdministradorQueAtendio: Long
+    + cambiarEstado(nuevoEstado: EstadoSolicitud): void
+}
+
+class Ubicacion {
+    - latitud: Double
+    - longitud: Double
+}
+
+enum EstadoSolicitud {
+    PENDIENTE
+    RECHAZADA
+    ACEPTADA
+}
+
+enum Origen {
+  CARGA_MANUAL
+  PROVENIENTE_DE_DATASET
+  PROVISTO_POR_CONTRIBUYENTE
+}
+
+enum TipoSolicitud {
+  CREACION
+  EDICION
+}
+
+Hecho --> Origen
+Hecho --> "*" Etiqueta
+Solicitud --> Hecho
+Solicitud --> EstadoSolicitud
+Solicitud --> Administrador
+Contribuyente --> Hecho
+Hecho --> Ubicacion
+Hecho --> Categoria
+Hecho --> "*" ContenidoMultimedia
+Hecho --> HechoEstadoPrevio
+Solicitud --> TipoSolicitud
+
+@enduml

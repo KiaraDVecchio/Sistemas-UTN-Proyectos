@@ -1,0 +1,85 @@
+<html th:replace="~{layout/base :: layout}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/login.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</div>
+
+<div class="form-container" th:fragment="contenido">
+    <div class="logo-placeholder">🌍</div>
+    <h2>Bienvenido/a</h2>
+
+    <div class="alert alert-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+    <div class="alert alert-danger"  th:if="${error}"   th:text="${error}"></div>
+
+    <form th:action="@{/login}" method="post" autocomplete="off">
+        <div class="form-group">
+            <label for="email">Mail <span style="color:red">*</span></label>
+            <input type="email" id="email" name="username" placeholder="hola@ejemplo.com" autocomplete="username" required/>
+
+            <div class="password-container">
+                <label for="contrasenia">Contraseña <span style="color:red">*</span></label>
+                <input type="password" id="contrasenia" name="password" placeholder="••••••••" autocomplete="current-password" required/>
+                <i class="fa-solid fa-eye" id="togglePassword"></i>
+            </div>
+
+            <a href="#"> ¿Olvidaste tu contraseña?</a>
+        </div>
+        <button type="submit" class="btn-submit">Iniciar Sesión</button>
+
+        <p class="cambiar-text">
+            ¿No tenés una cuenta? <a th:href="@{/signup}" id="cambiar-para-registrarse">Registrate</a>
+        </p>
+        <!-- agrego -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const togglePassword = document.querySelector('#togglePassword');
+            const passwordInput = document.querySelector('#contrasenia'); // <-- coincide con el id del input
+
+            if (!togglePassword || !passwordInput) {
+                console.warn('No se encontró el icono o el input de contraseña.');
+                return;
+            }
+
+            // Hacemos el icono accesible
+            togglePassword.setAttribute('role', 'button');
+            togglePassword.setAttribute('tabindex', '0');
+
+            const toggle = () => {
+                const isPassword = passwordInput.getAttribute('type') === 'password';
+                passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+
+                // Alterna clases del icono (asegúrate que fa-eye esté presente inicialmente)
+                togglePassword.classList.toggle('fa-eye-slash');
+                togglePassword.classList.toggle('fa-eye');
+
+                togglePassword.setAttribute('aria-label', isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+            };
+
+            togglePassword.addEventListener('click', toggle);
+            // Permitir activar con Enter o espacio para accesibilidad
+            togglePassword.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggle();
+                }
+            });
+        });
+    </script>
+    <!-- mensajes -->
+    <div th:if="${param.error}" class="alert alert-danger mt-3">
+        Usuario o contraseña incorrectos
+    </div>
+    <div th:if="${param.logout}" class="alert alert-success mt-3">
+        Sesión cerrada correctamente
+    </div>
+
+</div>
+
+
+</html>

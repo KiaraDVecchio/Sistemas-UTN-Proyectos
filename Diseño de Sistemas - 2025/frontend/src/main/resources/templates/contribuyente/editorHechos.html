@@ -1,0 +1,415 @@
+<html th:replace="~{layout/base :: layout}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/editorHechos.css}" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</div>
+
+<div class="container" th:fragment="contenido">
+
+    <div class="breadcrumb">
+        <a th:href="@{/misHechos}"> Mis Hechos </a> ›
+        <span>Edición del Hecho</span>
+    </div>
+
+    <div class="alert alert-danger" th:if="${errorMsg}">
+        <strong>Atención:</strong> <span th:text="${errorMsg}">Hay campos obligatorios sin completar.</span>
+    </div>
+
+    <form id="formEditarHecho"
+          th:action="@{/hechos/{id}/editar(id=${hechoId})}"
+          th:object="${hecho}"
+          method="post"
+          enctype="multipart/form-data">
+
+        <input type="hidden" name="replaceMedia" value="false"/>
+
+        <input type="hidden" th:field="*{latitud}"   id="latitud">
+        <input type="hidden" th:field="*{longitud}"  id="longitud">
+        <input type="hidden" th:field="*{provincia}" id="provincia">
+
+        <input type="hidden" name="idEnFuente" th:value="${hecho.idEnFuente}">
+
+        <div class="fact-container">
+            <div class="fact-main">
+                <div class="fact-header">
+                    <div class="editable-line">
+                        <textarea class="fact-title-input"
+                                  th:field="*{titulo}"
+                                  rows="2"
+                                  placeholder="Título del hecho"
+                        ></textarea>
+                        <button class="btn-editar" type="button" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                    </div>
+
+                    <input list="listaCategorias"
+                           class="fact-category"
+                           th:field="*{categoria}"
+                           placeholder="Categoría"
+                    />
+
+                    <datalist id="listaCategorias">
+                        <option th:each="cat : ${categorias}"
+                                th:value="${cat.nombre}"
+                                th:text="${cat.nombre}">
+                        </option>
+                    </datalist>
+
+                </div>
+
+                <div class="fact-content">
+                    <section>
+                        <h3 class="section-title">
+                            Descripción
+                            <button class="btn-editar" type="button" title="Editar">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                        </h3>
+
+                        <textarea class="fact-description"
+                                  th:field="*{descripcion}"
+                                  rows="6"
+                                  placeholder="Describe el hecho..."
+                        ></textarea>
+                    </section>
+
+                    <section class="multimedia-section">
+                        <h3 class="multimedia-title">Contenido Multimedia</h3>
+
+                        <div class="multimedia-grid"
+                             th:if="${nombresMultimedia != null and !#lists.isEmpty(nombresMultimedia)}"
+                             id="existing-media">
+
+                            <div class="multimedia-item"
+                                 th:each="name : ${nombresMultimedia}"
+                                 th:with="ext=${#strings.toLowerCase(#strings.substring(name, name.lastIndexOf('.') + 1))},
+                                          isImg=${#lists.contains(extensionesImagen, ext)},
+                                          fullUrl=${#strings.startsWith(name,'http') ? name : backendOrigin + name},
+                                          fileOnly=${#strings.substring(name, name.lastIndexOf('/') + 1)}"
+                                 th:attr="data-name=${name}">
+
+                                <img th:if="${isImg}" th:src="${fullUrl}" class="multimedia-thumb"/>
+                                <div th:unless="${isImg}" class="multimedia-placeholder" th:text="${fileOnly}"></div>
+
+                                <button type="button" class="remove-btn remove-existing">×</button>
+                                <span class="filename" th:text="${fileOnly}"></span>
+                            </div>
+
+                        </div>
+
+                        <div id="existing-to-delete"></div>
+
+                        <div style="margin-top:.75rem;">
+                            <input type="file" id="multimediaInput" name="multimedia" multiple />
+                            <small class="text-muted" style="display:block;margin-top:.25rem;">
+                                Podés seleccionar varias imágenes/videos a la vez.
+                            </small>
+                        </div>
+
+                        <div id="new-media-preview" class="multimedia-grid"></div>
+                    </section>
+
+                    <div style="display:flex; gap:.75rem; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-success" onclick="abrirConfirmacion()">Guardar Cambios</button>
+                        <a th:href="@{/hechos/{id}(id=${hechoId})}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fact-sidebar">
+                <div class="info-card">
+                    <h3>Información Básica</h3>
+
+                    <table class="metadata-table">
+                        <tr>
+                            <td>Fecha del acontecimiento:</td>
+                            <td class="editable-cell">
+                                <input type="date"
+                                       name="fecha"
+                                       th:value="${hecho.fechaAcontecimiento != null
+                                       ? #temporals.format(hecho.fechaAcontecimiento,'yyyy-MM-dd')
+                                       : ''}"
+                                />
+                                <button class="btn-editar" type="button"><i class="fa-solid fa-pen"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Hora:</td>
+                            <td class="editable-cell">
+                                <input type="time"
+                                       name="hora"
+                                       th:value="${hecho.fechaAcontecimiento != null
+                                       ? #temporals.format(hecho.fechaAcontecimiento,'HH:mm')
+                                       : ''}"
+                                />
+                                <button class="btn-editar" type="button"><i class="fa-solid fa-pen"></i></button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="info-card">
+                    <h3>Ubicación</h3>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label for="buscador-geo">Ubicación</label>
+                            <input type="text"
+                                   id="buscador-geo"
+                                   placeholder="Nueva ubicación (opcional)"
+                                   style="width:100%">
+                            <ul id="sugerencias-geo" class="sugerencias-geo"></ul>
+                        </div>
+                    </div>
+
+                    <div class="location-map">
+                        <div id="map-editar"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+
+    <script>
+        (function(){
+            const existingContainer = document.getElementById('existing-media');
+            const hiddenDeletes = document.getElementById('existing-to-delete');
+
+            if (existingContainer) {
+                existingContainer.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.remove-existing');
+                    if (!btn) return;
+
+                    const item = btn.closest('.multimedia-item');
+                    const name = item?.dataset?.name;
+                    if (!name) return;
+
+                    const existingInput = Array.from(hiddenDeletes.querySelectorAll('input[name="deleteExisting"]'))
+                        .find(i => i.value === name);
+
+                    if (existingInput) {
+                        existingInput.remove();
+                        item.classList.remove('removed');
+                    } else {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'deleteExisting';
+                        input.value = name;
+                        hiddenDeletes.appendChild(input);
+                        item.classList.add('removed');
+                    }
+                });
+            }
+
+            const input = document.getElementById('multimediaInput');
+            const preview = document.getElementById('new-media-preview');
+
+            if (input && preview) {
+                let dt = new DataTransfer();
+
+                input.addEventListener('change', () => {
+                    const incoming = Array.from(input.files);
+                    const keys = new Set(Array.from(dt.files).map(k));
+                    for (const f of incoming) {
+                        const key = k(f);
+                        if (!keys.has(key)) dt.items.add(f);
+                    }
+                    input.files = dt.files;
+                    renderPreview();
+                });
+
+                function renderPreview(){
+                    preview.innerHTML = '';
+                    Array.from(dt.files).forEach((file, idx) => {
+                        const item = document.createElement('div');
+                        item.className = 'multimedia-item';
+
+                        if (file.type.startsWith('image/')) {
+                            const img = document.createElement('img');
+                            img.className = 'multimedia-thumb';
+                            img.src = URL.createObjectURL(file);
+                            item.appendChild(img);
+                        } else {
+                            const ph = document.createElement('div');
+                            ph.className = 'multimedia-placeholder';
+                            ph.textContent = file.name;
+                            item.appendChild(ph);
+                        }
+
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'remove-btn';
+                        btn.textContent = '×';
+                        btn.addEventListener('click', () => removeAt(idx));
+
+                        const name = document.createElement('span');
+                        name.className = 'filename';
+                        name.textContent = file.name;
+
+                        item.appendChild(btn);
+                        item.appendChild(name);
+                        preview.appendChild(item);
+                    });
+                }
+
+                function removeAt(index){
+                    const files = Array.from(dt.files);
+                    dt = new DataTransfer();
+                    files.forEach((f,i) => { if (i !== index) dt.items.add(f); });
+                    input.files = dt.files;
+                    renderPreview();
+                }
+
+                function k(f){ return `${f.name}|${f.size}|${f.lastModified}`; }
+            }
+
+        })();
+    </script>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script th:inline="javascript">
+        const latActual = Number(/*[[${hecho.latitud}]]*/ 0);
+        const lonActual = Number(/*[[${hecho.longitud}]]*/ 0);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!latActual || !lonActual) return;
+
+            const map = L.map('map-editar', { zoomControl: true })
+                .setView([latActual, lonActual], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            L.marker([latActual, lonActual]).addTo(map);
+
+            setTimeout(() => map.invalidateSize(), 300);
+        });
+    </script>
+
+    <script>
+        (function () {
+            const $buscador = document.getElementById('buscador-geo');
+            const $sugs = document.getElementById('sugerencias-geo');
+            const $lat = document.getElementById('latitud');
+            const $lon = document.getElementById('longitud');
+            const $prov = document.getElementById('provincia');
+
+            let timer = null;
+
+            function limpiar() {
+                $sugs.innerHTML = '';
+                $sugs.style.display = 'none';
+            }
+
+            function render(items) {
+                if (!items || items.length === 0) return limpiar();
+                $sugs.innerHTML = '';
+                items.forEach(it => {
+                    const li = document.createElement('li');
+                    li.textContent = it.label;
+                    li.addEventListener('click', () => select(it));
+                    $sugs.appendChild(li);
+                });
+                $sugs.style.display = 'block';
+            }
+
+            function select(it) {
+                $lat.value = it.latitud;
+                $lon.value = it.longitud;
+                $prov.value = it.provinciaNombre;
+                $buscador.value = it.label;
+                limpiar();
+            }
+
+            async function buscar(q) {
+                try {
+                    const url = `https://agregador-production-0577.up.railway.app/api/geo/sugerencias?query=${encodeURIComponent(q)}&max=8`;
+                    const res = await fetch(url);
+                    if (!res.ok) return limpiar();
+                    const data = await res.json();
+                    render(data);
+                } catch {
+                    limpiar();
+                }
+            }
+
+            if ($buscador) {
+                $buscador.addEventListener('input', () => {
+                    const q = $buscador.value.trim();
+                    if (timer) clearTimeout(timer);
+                    if (q.length < 3) return limpiar();
+                    timer = setTimeout(() => buscar(q), 250);
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!(e.target === $buscador || $sugs.contains(e.target))) limpiar();
+                });
+            }
+        })();
+    </script>
+
+    <div class="return-bar">
+        <a th:href="@{/hechos/mis-hechos}" class="return-link">← Volver a Mis Hechos</a>
+    </div>
+
+    <div id="modalConfirmacion" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmar Edición</h3>
+                <button type="button" class="modal-close" onclick="cerrarConfirmacion()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Estás a punto de enviar una solicitud de edición para este hecho.</p>
+                <div class="alert alert-warning" style="margin-bottom:0; background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 10px; border-radius: 4px;">
+                    <strong>Importante:</strong> Una vez enviada, <span style="font-weight: bold;">no podrás volver a editar este hecho</span> hasta que un administrador apruebe o rechace tus cambios.
+                </div>
+                <p style="margin-top:1rem;">¿Deseas continuar?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="cerrarConfirmacion()">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="confirmarEnvio()">Sí, confirmar edición</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function abrirConfirmacion() {
+            document.getElementById('modalConfirmacion').style.display = 'flex';
+        }
+        function cerrarConfirmacion() {
+            document.getElementById('modalConfirmacion').style.display = 'none';
+        }
+        function confirmarEnvio() {
+            // Updated to target specific form ID to avoid logout form conflicts
+            const form = document.getElementById('formEditarHecho');
+            if (form) {
+                form.submit();
+            } else {
+                console.error("Formulario de edición no encontrado");
+            }
+        }
+    </script>
+
+    <style>
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; padding: 20px; border-radius: 8px;
+            width: 90%; max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-header h3 { margin: 0; font-size: 1.25rem; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    </style>
+</div>
+</html>

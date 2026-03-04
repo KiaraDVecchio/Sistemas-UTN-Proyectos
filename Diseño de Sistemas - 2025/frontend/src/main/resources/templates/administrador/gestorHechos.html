@@ -1,0 +1,337 @@
+<html th:replace="~{layout/base :: html}" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/gestorHechos.css}" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <style>
+
+        .geo-filter-wrapper {
+            display: flex;
+            gap: 10px;
+            position: relative;
+            align-items: stretch;
+        }
+
+        .geo-container {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+        }
+
+
+        .geo-container input {
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .sugerencias-geo {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .sugerencias-geo li {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        .sugerencias-geo li:hover {
+            background-color: #f0f0f0;
+            color: #007bff;
+        }
+
+        .radio-input-group {
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .radio-input-group input {
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</div>
+
+<div class="container" th:fragment="contenido">
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Hechos</h1>
+                <p class="page-subtitle">Gestiona los hechos recibidos de las distintas fuentes</p>
+            </div>
+            <button class="btn-add-new" onclick="location.href='/admin/importarCSV'">
+                <i class="fas fa-file-upload"></i>
+                Importar CSV
+            </button>
+        </div>
+
+        <form th:action="@{/admin/gestor-hechos}" method="get" class="filters-section" id="filterForm">
+            <input type="hidden" id="latitud" name="latitud" th:value="${filtroLat}">
+            <input type="hidden" id="longitud" name="longitud" th:value="${filtroLon}">
+
+            <div class="filters-grid">
+
+                <div class="filter-group">
+                    <label class="filter-label">Estado</label>
+                    <select class="filter-select" name="estado" onchange="this.form.submit()">
+                        <option value="" th:selected="${filtroEstado == null}">Todos</option>
+                        <option value="approved" th:selected="${filtroEstado == 'approved'}">Aprobado</option>
+                        <option value="rejected" th:selected="${filtroEstado == 'rejected'}">Eliminado</option>
+                    </select>
+                </div>
+
+                <div class="filter-group" style="grid-column: span 2;">
+                    <label class="filter-label">Ubicación y Radio</label>
+                    <div class="geo-filter-wrapper">
+                        <div class="geo-container">
+                            <input type="text" id="buscador-geo" class="filter-input"
+                                   placeholder="Dirección..." th:value="${filtroUbicacion}"
+                                   autocomplete="off" name="ubicacion">
+                            <ul id="sugerencias-geo" class="sugerencias-geo"></ul>
+                        </div>
+                        <div class="radio-input-group">
+                            <input type="number" name="radio" class="filter-input"
+                                   th:value="${filtroRadio != null ? filtroRadio : 10}"
+                                   min="1" placeholder="Km" title="Radio en Km">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">ID</label>
+                    <input type="number" class="filter-input" name="idHecho"
+                           placeholder="ID..." th:value="${filtroId}">
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Fecha</label>
+                    <input type="date" class="filter-input" name="fecha"
+                           th:value="${filtroFecha}" onchange="this.form.submit()">
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn-search">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <a th:href="@{/admin/gestor-hechos}" class="btn-clear" title="Limpiar filtros">
+                        <i class="fas fa-undo"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-container">
+            <table class="table" th:if="${hechos != null && !hechos.isEmpty()}">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Título</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody id="requestsTable">
+                <div class="alert alert-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+                <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+                <tr th:each="hecho : ${hechos}">
+                    <td th:text="${hecho.id}"></td>
+                    <td th:text="${hecho.fechaAcontecimiento != null ? hecho.fechaAcontecimiento.toLocalDate() : ''}"></td>
+                    <td th:text="${hecho.titulo}"></td>
+                    <td>
+                        <span th:classappend="${hecho.fueEliminado != null and !hecho.fueEliminado} ? 'status-badge status-approved' : 'status-badge status-rejected'"
+                              th:text="${hecho.fueEliminado != null and !hecho.fueEliminado} ? 'APROBADO' : 'ELIMINADO'"></span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a class="btn-action view" title="Ver" th:href="@{/hechos/{id}(id=${hecho.id})}">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button type="button" class="btn-action delete" title="Eliminar"
+                                    th:attr="data-handle=${hecho.id}" onclick="confirmDelete(this.dataset.handle)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${hechos == null || hechos.isEmpty()}" style="text-align:center; padding:3rem;">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No se encontraron hechos.</h4>
+            </div>
+
+            <div class="table-footer" th:if="${totalPages > 0}">
+                <div class="showing-text">
+                    Mostrando <span th:text="${from}"></span>–<span th:text="${to}"></span>
+                    de <span th:text="${totalElements}"></span> hechos.
+                </div>
+
+                <div class="pagination" th:if="${totalPages > 1}">
+                    <a class="pagination-btn"
+                       th:classappend="${page == 0} ? ' disabled'"
+                       th:href="@{/admin/gestor-hechos(page=0, size=${size}, idHecho=${filtroId}, ubicacion=${filtroUbicacion}, latitud=${filtroLat}, longitud=${filtroLon}, radio=${filtroRadio}, estado=${filtroEstado}, fecha=${filtroFecha})}">«</a>
+
+                    <a class="pagination-btn"
+                       th:classappend="${!hasPrev} ? ' disabled'"
+                       th:href="@{/admin/gestor-hechos(page=${prevPage}, size=${size}, idHecho=${filtroId}, ubicacion=${filtroUbicacion}, latitud=${filtroLat}, longitud=${filtroLon}, radio=${filtroRadio}, estado=${filtroEstado}, fecha=${filtroFecha})}">‹</a>
+
+                    <span class="pagination-btn active" th:text="${page + 1}"></span>
+
+                    <a class="pagination-btn"
+                       th:classappend="${!hasNext} ? ' disabled'"
+                       th:href="@{/admin/gestor-hechos(page=${nextPage}, size=${size}, idHecho=${filtroId}, ubicacion=${filtroUbicacion}, latitud=${filtroLat}, longitud=${filtroLon}, radio=${filtroRadio}, estado=${filtroEstado}, fecha=${filtroFecha})}">›</a>
+
+                    <a class="pagination-btn"
+                       th:classappend="${page + 1 == totalPages} ? ' disabled'"
+                       th:href="@{/admin/gestor-hechos(page=${totalPages - 1}, size=${size}, idHecho=${filtroId}, ubicacion=${filtroUbicacion}, latitud=${filtroLat}, longitud=${filtroLon}, radio=${filtroRadio}, estado=${filtroEstado}, fecha=${filtroFecha})}">»</a>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="modalCategoria" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitulo">Nueva Categoría</h3>
+                    <button class="modal-close" onclick="cerrarModalCategoria()"><i class="fas fa-times"></i></button>
+                </div>
+                <form id="formCategoria" method="post" th:data-create-action="@{/admin/categorias/nueva}" th:data-edit-action-template="@{/admin/categorias/PLACEHOLDER_ID/editar}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" id="categoriaId" name="id" />
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="categoriaNombre">Nombre *</label>
+                            <input type="text" id="categoriaNombre" name="nombre" class="form-input" required maxlength="100" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" onclick="cerrarModalCategoria()">Cancelar</button>
+                        <button type="submit" class="btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <form id="deleteCategoriaForm" th:method="delete" style="display:none;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    </form>
+    <form id="deleteForm" th:method="post" style="display:none;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lógica de Autocompletado Geoespacial
+            const $buscador = document.getElementById('buscador-geo');
+            const $sugs = document.getElementById('sugerencias-geo');
+            const $lat = document.getElementById('latitud');
+            const $lon = document.getElementById('longitud');
+            let timer = null;
+
+            function limpiarSugerencias() {
+                if ($sugs) { $sugs.innerHTML = ''; $sugs.style.display = 'none'; }
+            }
+
+            async function buscar(q) {
+                // API Local
+                const url = `http://localhost:8083/api/geo/sugerencias?query=${encodeURIComponent(q)}&max=5`;
+                try {
+                    const res = await fetch(url);
+                    if (!res.ok) return limpiarSugerencias();
+                    const data = await res.json();
+                    const items = data.direcciones || data;
+
+                    if (!items || items.length === 0) return limpiarSugerencias();
+
+                    $sugs.innerHTML = '';
+                    items.forEach((it) => {
+                        const li = document.createElement('li');
+                        li.textContent = it.label || it.direccion;
+                        li.addEventListener('click', () => {
+                            if ($lat) $lat.value = it.latitud;
+                            if ($lon) $lon.value = it.longitud;
+                            if ($buscador) $buscador.value = it.label || it.direccion;
+                            limpiarSugerencias();
+                        });
+                        $sugs.appendChild(li);
+                    });
+                    $sugs.style.display = 'block';
+                } catch (e) { console.error(e); limpiarSugerencias(); }
+            }
+
+            if ($buscador) {
+                $buscador.addEventListener('input', () => {
+                    const q = $buscador.value.trim();
+                    if (q.length === 0) { if ($lat) $lat.value = ''; if ($lon) $lon.value = ''; }
+                    if (timer) clearTimeout(timer);
+                    if (q.length < 3) { limpiarSugerencias(); return; }
+                    timer = setTimeout(() => buscar(q), 300);
+                });
+                document.addEventListener('click', (e) => {
+                    if ($sugs && !$sugs.contains(e.target) && e.target !== $buscador) limpiarSugerencias();
+                });
+            }
+        });
+
+        // Funciones de Confirmación y Modales (Legacy)
+        function confirmDelete(handle) {
+            const doConfirm = () => {
+                const form = document.getElementById('deleteForm');
+                form.action = `/admin/hecho/${encodeURIComponent(handle)}/eliminar`;
+                form.submit();
+            };
+            if (window.Swal) Swal.fire({ title: '¿Eliminar hecho?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí' }).then(r => { if(r.isConfirmed) doConfirm(); });
+            else if (confirm('¿Eliminar hecho?')) doConfirm();
+        }
+
+        function mostrarModalCategoria() {
+            const form = document.getElementById('formCategoria');
+            form.reset();
+            document.getElementById('modalTitulo').textContent = 'Nueva Categoría';
+            document.getElementById('categoriaId').value = '';
+            form.action = form.dataset.createAction;
+            document.getElementById('modalCategoria').style.display = 'flex';
+        }
+        function cerrarModalCategoria() { document.getElementById('modalCategoria').style.display = 'none'; }
+        function editarCategoria(id, nombre) {
+            const form = document.getElementById('formCategoria');
+            document.getElementById('modalTitulo').textContent = 'Editar Categoría';
+            document.getElementById('categoriaId').value = id;
+            document.getElementById('categoriaNombre').value = nombre;
+            form.action = form.dataset.editActionTemplate.replace('PLACEHOLDER_ID', encodeURIComponent(id));
+            document.getElementById('modalCategoria').style.display = 'flex';
+        }
+        function confirmarEliminarCategoria(id) {
+            const doDelete = () => {
+                const form = document.getElementById('deleteCategoriaForm');
+                form.action = `/admin/categorias/${encodeURIComponent(id)}/eliminar`;
+                form.submit();
+            };
+            if (window.Swal) Swal.fire({ title: '¿Eliminar categoría?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí' }).then(r => { if(r.isConfirmed) doDelete(); });
+            else if (confirm('¿Eliminar?')) doDelete();
+        }
+    </script>
+</div>
+</html>

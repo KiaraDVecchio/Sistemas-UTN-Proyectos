@@ -1,0 +1,191 @@
+<html th:replace="~{layout/base :: html}" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/panelControl.css}" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Ajuste pequeño para que el buscador y el botón queden alineados */
+        .section-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .search-form {
+            margin: 0;
+        }
+    </style>
+</div>
+
+<div class="admin-layout" th:fragment="contenido" sec:authorize="hasRole('ADMIN')">
+
+    <main class="admin-main">
+        <div class="dashboard-header">
+            <h1 th:text="${titulo}">Panel de Control</h1>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-content">
+                    <h3>Solicitudes Pendientes</h3>
+                    <div class="stat-number" th:text="${resumen?.solicitudesPendientes} ?: 0">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-database"></i></div>
+                <div class="stat-content">
+                    <h3>Fuentes de Datos</h3>
+                    <div class="stat-number" th:text="${resumen?.totalFuentes} ?: 0">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="stat-content">
+                    <h3>Total de Hechos</h3>
+                    <div class="stat-number" th:text="${resumen?.totalHechos} ?: 0">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="section-header">
+                <h3>Gestión de Colecciones</h3>
+                <div class="section-actions">
+                    <form th:action="@{/admin/panel-control}" method="get" class="search-form">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" name="keyword" th:value="${keyword}" placeholder="Buscar colecciones..." />
+                        </div>
+                    </form>
+
+                    <a th:href="@{/colecciones/nueva}" class="btn-add-new">
+                        <i class="fas fa-plus"></i>
+                        Nueva Colección
+                    </a>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="alert alert-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+                <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+                <table class="admin-table">
+                    <thead th:if="${colecciones != null && !colecciones.isEmpty()}">
+                    <tr>
+                        <th>Handle</th>
+                        <th>Nombre</th>
+                        <th>Hechos</th>
+                        <th>Consenso</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    <tr th:if="${colecciones == null || colecciones.isEmpty()}">
+                        <td colspan="5" class="text-center py-5">
+                            <i class="fa-regular fa-folder-open fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No hay colecciones registradas</h5>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${colecciones != null && !colecciones.isEmpty()}" th:each="coleccion : ${colecciones}">
+                        <td th:text="${coleccion.handle}">001</td>
+                        <td th:text="${coleccion.titulo}">Título</td>
+                        <td th:text="${coleccion.hechoIds != null ? coleccion.hechoIds.size() : 0}">0</td>
+                        <td><span class="consensus-badge" th:text="${coleccion.algoritmoDeConsenso}">Algoritmo</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a class="btn-action edit" title="Editar" th:href="@{/admin/coleccion/{handle}/editar(handle=${coleccion.handle})}">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a class="btn-action view" title="Ver" th:href="@{/colecciones/{handle}(handle=${coleccion.handle})}">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button type="button"
+                                        class="btn-action delete"
+                                        title="Eliminar"
+                                        th:attr="data-handle=${coleccion.handle}"
+                                        onclick="confirmDelete(this.dataset.handle)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div class="table-footer" th:if="${totalElements != null && totalElements > 0}">
+                    <div class="showing-text">
+                        Mostrando <span th:text="${from}">1</span>–<span th:text="${to}">10</span>
+                        de <span th:text="${totalElements}">0</span> colecciones.
+                    </div>
+
+                    <div class="pagination" th:if="${totalPages > 1}">
+                        <a class="pagination-btn"
+                           th:classappend="${page == 0} ? ' disabled'"
+                           th:href="@{/admin/panel-control(page=0, size=${size}, keyword=${keyword})}">«</a>
+
+                        <a class="pagination-btn"
+                           th:classappend="${!hasPrev} ? ' disabled'"
+                           th:href="@{/admin/panel-control(page=${prevPage}, size=${size}, keyword=${keyword})}">‹</a>
+
+                        <span class="pagination-btn active" th:text="${page + 1}">1</span>
+
+                        <a class="pagination-btn"
+                           th:classappend="${!hasNext} ? ' disabled'"
+                           th:href="@{/admin/panel-control(page=${nextPage}, size=${size}, keyword=${keyword})}">›</a>
+
+                        <a class="pagination-btn"
+                           th:classappend="${page + 1 == totalPages} ? ' disabled'"
+                           th:href="@{/admin/panel-control(page=${totalPages - 1}, size=${size}, keyword=${keyword})}">»</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <form id="deleteForm" th:method="post" style="display:none;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        </form>
+
+        <script>
+            function confirmDelete(handle) {
+                if (!handle) {
+                    console.warn('confirmDelete: handle vacío');
+                    return;
+                }
+
+                const doConfirm = () => {
+                    const form = document.getElementById('deleteForm');
+                    form.action = `/admin/coleccion/${encodeURIComponent(handle)}/eliminar`;
+                    form.submit();
+                };
+
+                if (window.Swal) {
+                    Swal.fire({
+                        title: '¿Eliminar colección?',
+                        text: 'Esta acción no se puede deshacer',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6'
+                    }).then(result => {
+                        if (result.isConfirmed) doConfirm();
+                    }).catch(err => {
+                        console.error('Swal error:', err);
+                    });
+                } else {
+                    if (window.confirm('¿Eliminar colección? Esta acción no se puede deshacer')) {
+                        doConfirm();
+                    }
+                }
+            }
+        </script>
+    </main>
+</div>
+</html>

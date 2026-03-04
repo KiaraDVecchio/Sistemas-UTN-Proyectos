@@ -1,0 +1,172 @@
+<html th:replace="~{layout/base :: html}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/estadisticas.css}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</div>
+
+<div class="container" th:fragment="contenido">
+    <div class="main-content">
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Panel de Estadísticas</h1>
+                <p class="page-subtitle">Análisis visual de los datos recolectados por MetaMapa</p>
+            </div>
+
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-blue"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="stat-content">
+                    <h3>Total de Hechos</h3>
+                    <div class="stat-number" th:text="${kpis.totalHechos}">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-green"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-content">
+                    <h3>Hechos Verificados</h3>
+                    <div class="stat-number" th:text="${kpis.hechosVerificados}">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-red"><i class="fas fa-ban"></i></div>
+                <div class="stat-content">
+                    <h3>Solicitudes Spam</h3>
+                    <div class="stat-number" th:text="${kpis.spamDetectado}">0</div>
+                    <span class="stat-change negative" th:text="${kpis.porcentajeSpam} + '% del total'">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-section">
+
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Hechos por Categoría</h3>
+                        <p>Distribución temática de los reportes</p>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chartCategorias"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Top Provincias con Incidentes</h3>
+                        <p>Regiones con mayor actividad reportada</p>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chartProvincias"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-row">
+                <div class="chart-card full-width">
+                    <div class="chart-header">
+                        <h3>Distribución Horaria de Incidentes</h3>
+                        <p>¿A qué hora ocurren más hechos?</p>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chartHorarios"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // Recuperamos los datos que vienen del Controller (Model)
+        const datosCategorias = /*[[${datosCategorias}]]*/ {};
+        const datosProvincias = /*[[${datosProvincias}]]*/ {};
+        const datosHorarios = /*[[${datosHorarios}]]*/ {};
+        /*]]>*/
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // 1. Gráfico de Categorías (Dona)
+            new Chart(document.getElementById('chartCategorias'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(datosCategorias),
+                    datasets: [{
+                        data: Object.values(datosCategorias),
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+
+            // 2. Gráfico de Provincias (Barras Horizontales)
+            new Chart(document.getElementById('chartProvincias'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(datosProvincias),
+                    datasets: [{
+                        label: 'Cantidad de Hechos',
+                        data: Object.values(datosProvincias),
+                        backgroundColor: '#1e4d8b',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Barras horizontales
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 3. Gráfico de Horarios (Línea suave)
+            // Ordenar las horas (00 a 23)
+            const horasOrdenadas = Object.keys(datosHorarios).sort((a,b) => parseInt(a) - parseInt(b));
+            const valoresHoras = horasOrdenadas.map(h => datosHorarios[h]);
+
+            new Chart(document.getElementById('chartHorarios'), {
+                type: 'line',
+                data: {
+                    labels: horasOrdenadas.map(h => h + ':00'),
+                    datasets: [{
+                        label: 'Frecuencia de hechos',
+                        data: valoresHoras,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        fill: true,
+                        tension: 0.4 // Curva suave
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        });
+
+        function actualizarGraficos() {
+            // Aquí podrías implementar una llamada fetch para recargar datos
+            // al cambiar el select de fecha sin recargar la página.
+            // Por ahora, recargamos la página con un param (ejemplo)
+            const rango = document.getElementById('rangoFecha').value;
+            window.location.href = `?rango=${rango}`;
+        }
+    </script>
+</div>
+</html>

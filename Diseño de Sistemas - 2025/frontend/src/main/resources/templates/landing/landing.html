@@ -1,0 +1,334 @@
+<html th:replace="~{layout/base :: html}" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/landing.css}" />
+</div>
+
+<div th:fragment="contenido">
+
+    <div class="alert alert-success" th:if="${param.login}">
+        Sesión iniciada con éxito.
+    </div>
+
+    <div class="landing-banner">
+        <h1 class="landing-title">Potenciá el Poder de los <br> Datos Geográficos</h1>
+        <h5 class="landing-subtitle">MetaMapa le permite organizar, analizar y visualizar <br>
+            información geoespacial como nunca antes.</h5>
+        <div class="call-to-action-buttons">
+            <button class="btn-signup" th:onclick="|window.location.href='@{/signup}'|" sec:authorize="!isAuthenticated()">Registrarse</button>
+            <button class="btn-login"  th:onclick="|window.location.href='@{/login}'|" sec:authorize="!isAuthenticated()">Iniciar sesión</button>
+            <a th:href="@{/colecciones}" class="btn-explorar">Explorar Colecciones</a>
+        </div>
+    </div>
+
+    <section id="propositos-objetivos" aria-labelledby="pm-title" class="pm-section">
+        <div class="pm-container">
+            <div class="pm-left">
+                <h2 id="pm-title" style="display: flex;">
+                    Nuestro Propósito<i class="fa-solid fa-location-pin pm-icon"></i>
+                </h2>
+                <p class="pm-purpose">
+                    MetaMapa potencia la inteligencia colectiva para transformar aportes individuales en
+                    información georreferenciada y multimedia fiable. Ordenamos, etiquetamos y situamos
+                    hechos en tiempo y espacio para facilitar
+                    prevención, visibilización e intervención en problemáticas reales.
+                </p>
+                <div class="pm-img">
+                    <img src="../img/mapa.jpg" alt="imagen mapa">
+                </div>
+            </div>
+
+            <div class="pm-divider" aria-hidden="true"></div>
+
+            <div class="pm-right" role="list" aria-label="Objetivos principales">
+                <h2 class="pm-right-title" style="display: flex;">
+                    Nuestros Objetivos<i class="fa-solid fa-bullseye pm-icon"></i>
+                </h2>
+
+                <article class="pm-item" role="listitem">
+                    <div class="pm-icon">
+                        <i class="fa-solid fa-users fa-2x"></i>
+                    </div>
+                    <div class="pm-text">
+                        <h4>Facilitar la colaboración segura</h4>
+                        <p>Flujos accesibles para que comunidades, ONG y organismos aporten y consensúen información
+                            (anónima o registrada).</p>
+                    </div>
+                </article>
+
+                <article class="pm-item" role="listitem">
+                    <div class="pm-icon">
+                        <i class="fa-solid fa-shield-halved fa-2x"></i>
+                    </div>
+                    <div class="pm-text">
+                        <h4>Proteger identidad e integridad</h4>
+                        <p>Anonimato opcional, mínima recolección de datos para visitantes y preservación de pruebas
+                            multimedia.</p>
+                    </div>
+                </article>
+
+                <article class="pm-item" role="listitem">
+                    <div class="pm-icon">
+                        <i class="fa-solid fa-check-circle fa-2x"></i>
+                    </div>
+                    <div class="pm-text">
+                        <h4>Promover veracidad y consenso</h4>
+                        <p>Modos de navegación y algoritmos de consenso para destacar hechos verificados por la
+                            comunidad.</p>
+                    </div>
+                </article>
+
+                <article class="pm-item" role="listitem">
+                    <div class="pm-icon">
+                        <i class="fa-solid fa-code-branch fa-2x"></i>
+                    </div>
+                    <div class="pm-text">
+                        <h4>Interoperabilidad e adopción</h4>
+                        <p>APIs y formatos abiertos para integrar fuentes proxy y permitir que otras instancias consuman
+                            datos.</p>
+                    </div>
+                </article>
+
+                <article class="pm-item" role="listitem">
+                    <div class="pm-icon">
+                        <i class="fa-solid fa-globe fa-2x"></i>
+                    </div>
+                    <div class="pm-text">
+                        <h4>Maximizar impacto social</h4>
+                        <p>Visualizaciones y exportes que permitan que los datos informen decisiones, investigaciones y
+                            campañas.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- === MAPA INTERACTIVO === -->
+    <div class="mapa-interactivo container" id="map-section">
+        <div id="map"></div>
+    </div>
+
+    <!-- === DESTACADOS === -->
+    <div class="destacados container">
+        <h2>Hechos y colecciones destacadas</h2>
+
+        <!-- TARJETAS DE COLECCIONES -->
+        <div class="colecciones-destacadas">
+            <div class="card coleccion-destacada" style="width: 18rem;" th:each="coleccion : ${coleccionesDestacadas}">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${coleccion.titulo}"></h5>
+                    <p class="card-text" th:text="${coleccion.titulo}"></p>
+
+                    <div style="margin-top:8px;">
+                        <a th:href="@{/colecciones/{handle}(handle=${coleccion.handle})}" class="btn btn-signup">Ver Hechos</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hechos-destacados">
+
+            <!-- Hecho -->
+            <div class="hecho-destacado" th:each="hecho : ${hechosDestacados}">
+                <div class="hecho-header">
+                    <h3 class="hecho-title" th:text="${hecho.titulo}"></h3>
+                    <div class="hecho-category category-incendio" th:text="${hecho.categoria}"></div>
+                </div>
+                <div class="hecho-content">
+                    <p class="hecho-description" th:text="${hecho.descripcion}"></p>
+                    <div class="hecho-meta d-flex gap-3 flex-wrap">
+                        <div class="meta-item">
+                            <span class="meta-label">Fecha</span><br/>
+                            <span class="meta-value" th:text="${hecho.fechaAcontecimiento}"></span>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="hecho-footer">
+                    <button th:onclick="|window.location.href='@{/hechos/{id}(id=${hecho.id})}'|" class="btn btn-signup">Ver Detalle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- === MODAL === -->
+    <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detalleModalLabel">Detalle del Hecho</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body detalle-modal-body" id="detalleModalBody">
+                    <p>Cargando...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <a id="btnIrADetalle" href="#" class="btn btn-primary">Ir a la página de detalle</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Leaflet core -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- 🔵 MarkerCluster CSS + JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const hechos = /*[[${hechos}]]*/ '[]';
+        /*]]>*/
+
+        const hechosNorm = (hechos || []).map(h => ({
+            id: h.id,
+            titulo: h.titulo,
+            descripcion: h.descripcion,
+            fechaAcontecimiento: h.fechaAcontecimiento,
+            provincia: h.provincia,
+            latitud: h.latitud,
+            longitud: h.longitud,
+            detalleUrl: h.detalleUrl
+        }));
+
+        const map = L.map('map').setView([-34.626, -58.426], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // ============================
+        //  MARKER CLUSTER
+        // ============================
+        const markerCluster = L.markerClusterGroup();
+        const markers = {};
+
+        hechosNorm.forEach(h => {
+            const lat = Number(h.latitud);
+            const lng = Number(h.longitud);
+
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                console.warn('Hecho sin coordenadas válidas, se saltea:', h.id);
+                return;
+            }
+
+            const mk = L.marker([lat, lng]);
+
+            const popupHtml = `
+                <div>
+                    <div class="popup-title">${escapeHtml(h.titulo)}</div>
+                    <div style="font-size:0.9rem; margin-bottom:6px;">
+                        ${escapeHtml(h.provincia || '')} • ${escapeHtml(h.fechaAcontecimiento || '')}
+                    </div>
+                    <div style="font-size:0.85rem; margin-bottom:8px;">
+                        ${escapeHtml(h.descripcion || '')}
+                    </div>
+                    <button id="popupBtn-${h.id}" class="btn btn-sm btn-primary">Ver detalles</button>
+                </div>
+            `;
+            mk.bindPopup(popupHtml);
+
+            mk.on('popupopen', () => {
+                const btn = document.getElementById(`popupBtn-${h.id}`);
+                if (btn) {
+                    btn.addEventListener('click', ev => {
+                        ev.preventDefault();
+                        abrirDetalleModal(h);
+                    });
+                }
+            });
+
+            markers[h.id] = mk;
+            markerCluster.addLayer(mk);
+        });
+
+        map.addLayer(markerCluster);
+
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function abrirDetalleModal(h) {
+            const body = document.getElementById('detalleModalBody');
+
+            const lat = Number(h.latitud);
+            const lng = Number(h.longitud);
+            const coordsText = (Number.isFinite(lat) && Number.isFinite(lng))
+                ? `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+                : 'Sin coordenadas';
+
+            body.innerHTML = `
+                <h5>${escapeHtml(h.titulo)}</h5>
+                <p><strong>Fecha:</strong> ${escapeHtml(h.fechaAcontecimiento || '')}</p>
+
+                <p>${escapeHtml(h.descripcion || '')}</p>
+                <p><strong>Coordenadas:</strong> ${coordsText}</p>
+            `;
+
+            const btnIr = document.getElementById('btnIrADetalle');
+            if (btnIr) btnIr.href = h.detalleUrl || '/hechos/' + h.id;
+
+            new bootstrap.Modal(document.getElementById('detalleModal')).show();
+        }
+
+
+        document.querySelectorAll('.ver-en-mapa').forEach(btn => {
+            btn.addEventListener('click', ev => {
+                const id = parseInt(btn.getAttribute('data-id'));
+                const h = hechosNorm.find(x => x.id === id);
+                if (!h) return;
+
+                const lat = Number(h.latitud);
+                const lng = Number(h.longitud);
+
+                if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+                map.setView([lat, lng], 12);
+                if (markers[id]) markers[id].openPopup();
+            });
+        });
+
+        const malvinasCoords = [-51.7, -59.0];
+
+        const malvinasIcon = L.divIcon({
+            className: 'malvinas-label',
+            html: '<span>Islas Malvinas</span>',
+            iconSize: null
+        });
+        L.marker(malvinasCoords, { icon: malvinasIcon, interactive: false, zIndexOffset: 1000 }).addTo(map);
+    </script>
+
+    <style>
+        .malvinas-label span{
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.85);
+            padding: 2px 6px;
+            border-radius: 3px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+        }
+    </style>
+
+</div>
+
+<script src="/js/include-footer.js" defer></script>
+</body>
+
+</html>

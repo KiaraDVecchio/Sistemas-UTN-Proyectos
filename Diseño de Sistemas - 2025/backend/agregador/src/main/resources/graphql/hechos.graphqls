@@ -1,0 +1,51 @@
+# QUERIES DISPONIBLES
+type Query {
+    hechos(filtro: FiltroHechosInput): [Hecho]
+    hechoPorId(id: ID!): Hecho
+}
+
+# TIPOS
+type Hecho {
+    id: ID!
+    titulo: String
+    descripcion: String
+    categoria: String
+    provincia: String
+    latitud: Float
+    longitud: Float
+    fechaCarga: String
+    fechaAcontecimiento: String
+    idEtiquetas: [ID]
+    idContenidoMultimedia: [String]
+    fuenteExterna: String
+    fueEliminado: Boolean
+    contribuyente: Contribuyente
+    cantVistas: Int
+    idEnFuente: ID
+    consensuado: Boolean
+    editable: Boolean
+    diasRestantes: Int
+    tieneEdicionPendiente: Boolean
+}
+
+type Contribuyente {
+    id: ID
+    nombre: String
+    apellido: String
+    fechaDeNacimiento: String
+}
+
+# INPUTS
+input FiltroHechosInput {
+    categoria: String
+    provincia: String
+    fechaDesde: String
+    fechaHasta: String
+    tituloContiene: String
+}
+
+# PAGINACION
+type HechoPage {
+    contenido: [Hecho]
+    total: Int
+}

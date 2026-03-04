@@ -1,0 +1,361 @@
+<html th:replace="~{layout/base :: layout}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/detalleColeccion.css}" />
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</div>
+
+<div class="container" th:fragment="contenido">
+    <div class="breadcrumb">
+        <a th:href="@{/inicio}"> Inicio </a> ›
+        <a th:href="@{/colecciones}"> Colecciones </a> ›
+        <p th:text="${coleccion.titulo}"></p>
+    </div>
+
+    <div class="collection-header">
+        <h1 class="collection-title" th:text="${coleccion.titulo}"></h1>
+        <p class="collection-description" th:text="${coleccion.descripcion}"></p>
+
+        <div class="collection-stats">
+            <div class="stat">
+                <span class="stat-label">Total de hechos</span>
+                <span class="stat-value" th:text="${totalElementos}"></span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Algoritmo de consenso</span>
+                <span class="stat-value" th:text="${coleccion.algoritmoDeConsenso}"></span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls-section">
+        <h3 class="controls-title">Filtros y configuración</h3>
+
+        <form th:action="@{/colecciones/{handle}(handle=${coleccion.handle})}" method="get" id="formFiltros">
+
+            <div class="mode-toggle">
+                <span class="toggle-label">Modo de navegación:</span>
+                <span style="margin-right: 0.5rem;">Irrestricto</span>
+
+                <label class="toggle-switch">
+                    <input type="checkbox"
+                           name="modoCurado"
+                           th:checked="${modoCurado}"
+                           onchange="document.getElementById('formFiltros').submit()">
+                    <span class="toggle-slider"></span>
+                </label>
+
+                <span style="margin-left: 0.5rem;">Curado</span>
+                <span style="margin-left: 1rem; font-size: 0.85rem; color: #666;">
+                    (Solo hechos verificados)
+                </span>
+            </div>
+
+            <div class="controls-grid">
+
+                <div class="control-group">
+                    <label for="categoria-filter">Categoría</label>
+                    <select id="categoria-filter" name="categoria">
+                        <option value="">Todas las categorías</option>
+                        <option th:each="cat : ${categorias}"
+                                th:value="${cat.nombre}"
+                                th:text="${cat.nombre}"
+                                th:selected="${param.categoria != null and param.categoria[0] == cat.nombre}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="fuente-filter">Fuente</label>
+                    <select id="fuente-filter" name="fuente">
+                        <option value="">Todas las fuentes</option>
+                        <option value="PROVENIENTE_DE_DATASET"
+                                th:selected="${param.fuente != null and param.fuente[0] == 'PROVENIENTE_DE_DATASET'}">
+                            Dataset oficial
+                        </option>
+                        <option value="PROVISTO_POR_CONTRIBUYENTE"
+                                th:selected="${param.fuente != null and param.fuente[0] == 'PROVISTO_POR_CONTRIBUYENTE'}">
+                            Reportes ciudadanos
+                        </option>
+                        <option value="PROXY"
+                                th:selected="${param.fuente != null and param.fuente[0] == 'PROXY'}">
+                            Fuentes Externas (Proxy)
+                        </option>
+                        <option value="CARGA_MANUAL"
+                                th:selected="${param.fuente != null and param.fuente[0] == 'CARGA_MANUAL'}">
+                            Carga Manual (Admin)
+                        </option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="busqueda-texto">Palabras clave</label>
+                    <input type="text" id="busqueda-texto" name="keyword"
+                           placeholder="Buscar en título..." th:value="${param.keyword}">
+                </div>
+
+                <div class="control-group">
+                    <label>Filtrar por Cercanía</label>
+
+                    <input type="hidden" id="latitud" name="latitud" th:value="${param.latitud}">
+                    <input type="hidden" id="longitud" name="longitud" th:value="${param.longitud}">
+
+                    <div class="geo-filter-wrapper">
+                        <div class="geo-container">
+                            <input type="text" id="buscador-geo"
+                                   placeholder="Dirección exacta..."
+                                   th:value="${param.ubicacion}"
+                                   autocomplete="off">
+                            <ul id="sugerencias-geo" class="sugerencias-geo"></ul>
+                        </div>
+
+                        <div class="radio-input-group">
+                            <input type="number" id="radio-filter" name="radio"
+                                   th:value="${param.radio != null ? param.radio : 10}"
+                                   min="1" placeholder="km" title="Radio en km">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="fecha-desde">Fecha desde</label>
+                    <input type="date" id="fecha-desde" name="fechaDesde" th:value="${param.fechaDesde}">
+                </div>
+
+                <div class="control-group">
+                    <label for="fecha-hasta">Fecha hasta</label>
+                    <input type="date" id="fecha-hasta" name="fechaHasta" th:value="${param.fechaHasta}">
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-principal">Aplicar Filtros</button>
+            <a th:href="@{/colecciones/{handle}(handle=${coleccion.handle})}" class="btn btn-secondary">Limpiar</a>
+        </form>
+    </div>
+
+    <div class="hechos-grid">
+        <div class="hecho-card" th:each="hecho : ${hechos}">
+
+            <h3 class="hecho-title" th:text="${hecho.titulo}"></h3>
+
+            <div class="consensus-indicator" style="margin-bottom: 0.5rem;">
+                <span class="consensus-dot"
+                      th:classappend="${hecho.consensuado} ? 'consensus-verified' : 'consensus-unverified'">
+                </span>
+                <span th:text="${hecho.consensuado} ? 'Verificado' : 'Sin verificar'"
+                      style="margin-left: 5px; font-size: 0.8rem; color: #666;">
+                </span>
+            </div>
+
+            <div class="hecho-category" th:text="${hecho.categoria}"></div>
+
+
+            <div class="hecho-meta">
+                <div th:text="${hecho.fechaAcontecimiento}">
+                    <strong>Fecha:</strong> 12/08/2025
+                </div>
+                <div th:text="${hecho.fechaCarga}">
+                    <strong>Reportado:</strong> 13/08/2025
+                </div>
+                <div>
+                    <strong>Vistas:</strong> <span th:text="${hecho.cantVistas}"></span>
+                </div>
+            </div>
+
+            <div class="hecho-actions">
+                <a class="btn btn-principal btn-verDetalleHecho"
+                   th:href="@{/hechos/{id}(id=${hecho.id}, handle=${coleccion.handle})}"
+                   th:attr="data-handle=${hecho.id}">
+                    Ver Detalles
+                </a>
+                <a class="btn btn-secondary"
+                   th:href="@{/solicitud/{hechoId}(hechoId=${hecho.id})}">
+                    Solicitar Eliminación
+                </a>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(hechos)}" class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+            <h3>No se encontraron hechos con estos filtros.</h3>
+            <p>Intenta cambiar los criterios de búsqueda o el modo de navegación.</p>
+        </div>
+    </div>
+
+    <div class="pagination" th:if="${totalPaginas > 1}" ... >
+
+        <a th:if="${paginaActual > 0}"
+           th:href="@{/colecciones/{handle}(handle=${coleccion.handle},
+                      page=${paginaActual - 1},
+                      categoria=${param.categoria},
+                      fuente=${param.fuente},
+                      fechaDesde=${param.fechaDesde},
+                      fechaHasta=${param.fechaHasta},
+                      ubicacion=${param.ubicacion},
+                      keyword=${param.keyword},
+                      modoCurado=${modoCurado},
+                      latitud=${param.latitud},
+                      longitud=${param.longitud},
+                      radio=${param.radio})}"
+           class="btn btn-secondary">
+            &laquo; Anterior
+        </a>
+
+        <a th:if="${paginaActual < totalPaginas - 1}"
+           th:href="@{/colecciones/{handle}(handle=${coleccion.handle},
+                      page=${paginaActual + 1},
+                      categoria=${param.categoria},
+                      fuente=${param.fuente},
+                      fechaDesde=${param.fechaDesde},
+                      fechaHasta=${param.fechaHasta},
+                      ubicacion=${param.ubicacion},
+                      keyword=${param.keyword},
+                      modoCurado=${modoCurado},
+                      latitud=${param.latitud},
+                      longitud=${param.longitud},
+                      radio=${param.radio})}"
+           class="btn btn-secondary">
+            Siguiente &raquo;
+        </a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // =========================================================
+            // 1. CONFIGURACIÓN CSRF (Necesario para sumar vistas)
+            // =========================================================
+            const csrfMeta = document.querySelector('meta[name="_csrf"]');
+            const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+            const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : null;
+            const csrfHeader = csrfHeaderMeta ? csrfHeaderMeta.getAttribute('content') : 'X-CSRF-TOKEN';
+
+
+            // =========================================================
+            // 2. LÓGICA DE GEOLOCALIZACIÓN (AUTOCOMPLETADO)
+            // =========================================================
+            const $buscador = document.getElementById('buscador-geo'); // Input visible de texto
+            const $sugs = document.getElementById('sugerencias-geo');  // Lista <ul> para resultados
+            const $lat = document.getElementById('latitud');           // Input hidden
+            const $lon = document.getElementById('longitud');          // Input hidden
+            // const $radio = document.getElementById('radio-filter'); // Input visible de radio (opcional)
+
+            let timer = null;
+
+            function limpiarSugerencias() {
+                if ($sugs) {
+                    $sugs.innerHTML = '';
+                    $sugs.style.display = 'none';
+                }
+            }
+
+            function renderSugerencias(items) {
+                if (!items || items.length === 0) {
+                    limpiarSugerencias();
+                    return;
+                }
+                $sugs.innerHTML = '';
+                items.forEach((it) => {
+                    const li = document.createElement('li');
+                    // Ajustamos propiedades según lo que devuelve tu API (label, nombre, direccion, etc)
+                    li.textContent = it.label || it.direccion || 'Ubicación encontrada';
+
+                    // Evento al hacer click en una sugerencia
+                    li.addEventListener('click', () => {
+                        // 1. Guardamos coordenadas en inputs ocultos para el submit
+                        if ($lat) $lat.value = it.latitud;
+                        if ($lon) $lon.value = it.longitud;
+
+                        // 2. Mostramos el nombre limpio en el buscador visual
+                        if ($buscador) $buscador.value = it.label || it.direccion;
+
+                        // 3. Limpiamos la lista
+                        limpiarSugerencias();
+                    });
+                    $sugs.appendChild(li);
+                });
+                $sugs.style.display = 'block';
+            }
+
+            async function buscar(q) {
+                // URL de tu API local (Georef wrapper) puerto 8083
+                const url = `http://localhost:8083/api/geo/sugerencias?query=${encodeURIComponent(q)}&max=5`;
+
+                try {
+                    const res = await fetch(url);
+                    if (!res.ok) return limpiarSugerencias();
+                    const data = await res.json();
+
+                    // Renderizamos (ajustar si la API devuelve data.direcciones o data directo)
+                    renderSugerencias(data.direcciones || data);
+                } catch (e) {
+                    console.error("Error buscando geo:", e);
+                    limpiarSugerencias();
+                }
+            }
+
+            if ($buscador) {
+                // Escuchar escritura del usuario
+                $buscador.addEventListener('input', () => {
+                    const q = $buscador.value.trim();
+
+                    // Si el usuario borra el texto, limpiamos las coordenadas ocultas para no filtrar mal
+                    if (q.length === 0) {
+                        if ($lat) $lat.value = '';
+                        if ($lon) $lon.value = '';
+                    }
+
+                    if (timer) clearTimeout(timer);
+                    if (q.length < 3) {
+                        limpiarSugerencias();
+                        return;
+                    }
+                    // Debounce de 300ms para no saturar la API
+                    timer = setTimeout(() => buscar(q), 300);
+                });
+
+                // Cerrar sugerencias si se hace click fuera
+                document.addEventListener('click', (e) => {
+                    if ($sugs && !$sugs.contains(e.target) && e.target !== $buscador) {
+                        limpiarSugerencias();
+                    }
+                });
+            }
+
+
+            // =========================================================
+            // 3. LÓGICA DE CONTADOR DE VISTAS (EXISTENTE)
+            // =========================================================
+            document.querySelectorAll('.btn-verDetalleHecho').forEach(anchor => {
+                anchor.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    const handle = anchor.dataset.handle;
+                    const targetHref = anchor.href;
+
+                    if (!handle) {
+                        window.location.href = targetHref;
+                        return;
+                    }
+
+                    const postUrl = `/hechos/${encodeURIComponent(handle)}/sumarVista`;
+
+                    fetch(postUrl, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            ...(csrfToken ? { [csrfHeader]: csrfToken } : {})
+                        },
+                        body: '',
+                        keepalive: true
+                    })
+                        .catch(err => console.warn('No se pudo registrar vista:', err))
+                        .finally(() => window.location.href = targetHref);
+                });
+            });
+        });
+    </script>
+</div>
+</html>

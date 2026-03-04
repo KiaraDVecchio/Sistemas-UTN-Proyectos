@@ -1,0 +1,262 @@
+<html th:replace="~{layout/base :: layout}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/formularioHecho.css}" />
+</div>
+
+    <div th:fragment="contenido">
+        <form class="formulario-hecho"
+              th:action="@{/hechos/nuevo}"
+              method="post"
+              th:object="${hecho}"
+              enctype="multipart/form-data"> <!-- hay que probar-->
+            <input type="hidden" th:field="*{latitud}"   id="latitud">
+            <input type="hidden" th:field="*{longitud}"  id="longitud">
+            <input type="hidden" th:field="*{provincia}" id="provincia">
+        <h4 th:text="${titulo}">Subir hecho</h4>
+
+        <div class="alert alert-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+        <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+        <div class="row-imputs">
+            <div class="col">
+                <label for="titulo">Título <span style="color:red">*</span></label>
+                <input type="text" id="titulo" placeholder="Título" th:field="*{titulo}" required>
+            </div>
+            <div class="col">
+                <label for="categoria">Categoría <span style="color:red">*</span></label>
+                <input list="lista-categorias" id="categoria" th:field="*{categoria}"
+                       placeholder="Escriba o seleccione una categoría" required>
+
+                <datalist id="lista-categorias">
+                    <option th:each="categoria : ${categorias}"
+                            th:value="${categoria.nombre}"></option>
+                </datalist>
+            </div>
+        </div>
+
+        <label for="descripcion">Descripción <span style="color:red">*</span></label>
+            <textarea id="descripcion" placeholder="Descripción" th:field="*{descripcion}" required></textarea>
+            <div class="row-imputs">
+                <div class="col">
+                    <label for="fecha">Fecha del acontecimiento <span style="color:red">*</span></label>
+                    <input type="date" id="fecha" name="fecha" required>
+                </div>
+                <div class="col">
+                    <label for="hora">Hora del acontecimiento <span style="color:red">*</span></label>
+                    <input type="time" id="hora" name="hora" required>
+                </div>
+            </div>
+            <div class="row-imputs">
+                <div class="col geo-autocomplete">
+                    <label for="buscador-geo">Ubicacion<span style="color:red">*</span></label>
+                    <input type="text" id="buscador-geo" placeholder="Ej: Rivadavia 4200, Caballito">
+                    <ul id="sugerencias-geo" class="sugerencias-geo"></ul>
+                </div>
+            </div>
+            <div class="col">
+                <label for="multimedia">Contenido multimedia</label>
+
+                <div class="file-input-wrapper">
+                    <input type="file"
+                           id="multimedia"
+                           class="file-input"
+                           name="multimedia"
+                           accept="image/*,video/*"
+                           multiple>
+
+                    <div class="file-input-display" id="dropzone">
+                        <div class="file-helper">Haz clic para subir archivos o arrastra y suelta</div>
+                        <div id="previews" class="previews-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+
+        <button class="btn-submit" type="submit">Subir hecho</button>
+    </form>
+        <script>
+            (function () {
+                const $buscador = document.getElementById('buscador-geo');
+                const $sugs = document.getElementById('sugerencias-geo');
+                const $lat = document.getElementById('latitud');
+                const $lon = document.getElementById('longitud');
+                const $prov = document.getElementById('provincia');
+
+                let timer = null;
+
+                function limpiarSugerencias() {
+                    $sugs.innerHTML = '';
+                    $sugs.style.display = 'none';
+                }
+
+                function renderSugerencias(items) {
+                    if (!items || items.length === 0) {
+                        limpiarSugerencias();
+                        return;
+                    }
+                    $sugs.innerHTML = '';
+                    items.forEach((it) => {
+                        const li = document.createElement('li');
+                        li.textContent = it.label || '';
+                        li.tabIndex = 0;
+                        li.addEventListener('click', () => onSelect(it));
+                        li.addEventListener('keypress', (e) => { if (e.key === 'Enter') onSelect(it); });
+                        $sugs.appendChild(li);
+                    });
+                    $sugs.style.display = 'block';
+                }
+
+                function onSelect(it) {
+                    $lat.value = it.latitud ?? '';
+                    $lon.value = it.longitud ?? '';
+                    $prov.value = it.provinciaNombre ?? '';
+                    $buscador.value = it.label || '';
+                    limpiarSugerencias();
+                }
+
+                async function buscar(q) {
+                    const url = `https://agregador-production-0577.up.railway.app/api/geo/sugerencias?query=${encodeURIComponent(q)}&max=8`;
+                    try {
+                        const res = await fetch(url);
+                        if (!res.ok) return limpiarSugerencias();
+                        const data = await res.json();
+                        renderSugerencias(data);
+                    } catch {
+                        limpiarSugerencias();
+                    }
+                }
+
+                if ($buscador) {
+                    $buscador.addEventListener('input', () => {
+                        const q = $buscador.value.trim();
+                        if (timer) clearTimeout(timer);
+                        if (q.length < 3) {
+                            limpiarSugerencias();
+                            return;
+                        }
+                        timer = setTimeout(() => buscar(q), 250);
+                    });
+
+                    document.addEventListener('click', (e) => {
+                        if (!($sugs.contains(e.target) || e.target === $buscador)) {
+                            limpiarSugerencias();
+                        }
+                    });
+                }
+
+                const form = document.querySelector('form.formulario-hecho');
+                if (form) {
+                    form.addEventListener('submit', (e) => {
+                        if (!$lat.value || !$lon.value || !$prov.value) {
+                            e.preventDefault();
+                            alert('Seleccioná una Ubicación de la lista para continuar.');
+                            $buscador?.focus();
+                        }
+                    });
+                }
+
+                /* ===== PREVIEWS + REMOVE (dentro de la dropzone) ===== */
+                const input = document.getElementById('multimedia');
+                const dropzone = document.getElementById('dropzone');
+                const previews = document.getElementById('previews');
+                const helper = dropzone?.querySelector('.file-helper');
+
+                let selected = []; // Files reales
+                const dt = new DataTransfer();
+
+                function toggleHelper() {
+                    if (!helper) return;
+                    helper.classList.toggle('hidden', selected.length > 0);
+                    // si hay archivos, la dropzone deja de centrar verticalmente por el grid
+                    dropzone.style.justifyContent = selected.length > 0 ? 'flex-start' : 'center';
+                }
+
+                function syncInput() {
+                    dt.items.clear();
+                    selected.forEach(f => dt.items.add(f));
+                    input.files = dt.files;
+                    toggleHelper();
+                }
+
+                function makeThumb(file) {
+                    const card = document.createElement('div');
+                    card.className = 'preview-card';
+
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'remove-btn';
+                    btn.textContent = '×';
+
+                    let node;
+                    if (file.type.startsWith('image/')) {
+                        node = document.createElement('img');
+                        node.src = URL.createObjectURL(file);
+                        node.onload = () => URL.revokeObjectURL(node.src);
+                    } else if (file.type.startsWith('video/')) {
+                        node = document.createElement('video');
+                        node.src = URL.createObjectURL(file);
+                        node.muted = true;
+                        node.playsInline = true;
+                        node.loop = true;
+                        node.autoplay = true;
+                        node.onloadeddata = () => URL.revokeObjectURL(node.src);
+                    } else {
+                        node = document.createElement('div');
+                        node.style.padding = '8px';
+                        node.textContent = file.name;
+                    }
+
+                    btn.addEventListener('click', () => {
+                        selected = selected.filter(f => !(f.name === file.name && f.lastModified === file.lastModified));
+                        syncInput();
+                        card.remove();
+                    });
+
+                    card.appendChild(node);
+                    card.appendChild(btn);
+                    previews.appendChild(card);
+                }
+
+                function addFiles(fileList) {
+                    const asArray = Array.from(fileList || []);
+                    if (!asArray.length) return;
+
+                    asArray.forEach(file => {
+                        const exists = selected.some(f => f.name === file.name && f.lastModified === file.lastModified);
+                        if (exists) return;
+                        selected.push(file);
+                        makeThumb(file);
+                    });
+                    syncInput();
+                }
+
+                dropzone?.addEventListener('click', () => input?.click());
+                input?.addEventListener('change', () => addFiles(input.files));
+
+                ['dragenter','dragover'].forEach(ev =>
+                    dropzone?.addEventListener(ev, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dropzone.classList.add('dragover');
+                    })
+                );
+                ['dragleave','drop'].forEach(ev =>
+                    dropzone?.addEventListener(ev, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dropzone.classList.remove('dragover');
+                    })
+                );
+                dropzone?.addEventListener('drop', (e) => {
+                    const files = e.dataTransfer?.files;
+                    addFiles(files);
+                });
+
+                // estado inicial
+                toggleHelper();
+            })();
+        </script>
+
+    </div>
+</html>

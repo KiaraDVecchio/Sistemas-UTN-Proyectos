@@ -1,0 +1,23 @@
+@startuml
+
+class Estadistica {
+    - id: Int
+    - pregunta: Pregunta
+    - coleccionHandle: String
+    - categoriaId: Int
+    - provincia: String
+    - horaDelDia: LocalTime
+    - valor: Int
+    - fechaDeCalculo: LocalTime
+}
+
+class Pregunta {
+    - id: Int
+    - pregunta: String
+    - descripcion: String
+}
+
+Estadistica --> Pregunta
+
+
+@enduml

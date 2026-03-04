@@ -1,0 +1,157 @@
+<html th:replace="~{layout/base :: layout}" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="css">
+  <link rel="stylesheet" th:href="@{/css/importadorArchivosCSV.css}" />
+</div>
+
+<div th:fragment="contenido" class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a th:href="@{/admin/gestor-hechos}">Panel de Control</a> ›
+    Importar Hechos CSV
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-gradient">
+      <h1 class="page-title" th:text="${titulo}">Importación de Hechos en Archivos CSV</h1>
+      <p class="page-subtitle">Procesa archivos CSV con más de 10,000 registros</p>
+    </div>
+  </div>
+
+  <div class="alert alert-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+  <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+  <div class="alert alert-info" th:if="${detalle}" th:text="${detalle}"></div>
+
+  <div class="results-summary" th:if="${hechosTotales}">
+    <div class="result-card success">
+      <div class="result-icon"><i class="fas fa-database"></i></div>
+      <div class="result-number" th:text="${hechosTotales}">0</div>
+      <div class="result-label">Hechos Totales</div>
+    </div>
+    <div class="result-card success">
+      <div class="result-icon"><i class="fas fa-check-circle"></i></div>
+      <div class="result-number" th:text="${guardadosTotales}">0</div>
+      <div class="result-label">Guardados</div>
+    </div>
+    <div class="result-card warning">
+      <div class="result-icon"><i class="fas fa-clock"></i></div>
+      <div class="result-number" th:text="${tiempoTardado}">0</div>
+      <div class="result-label">Tiempo (ms)</div>
+    </div>
+  </div>
+
+  <!-- IMPORTANTE: el token CSRF va en la URL del action -->
+  <form id="importForm"
+        th:action="@{'/admin/importarCSV?' + ${_csrf.parameterName} + '=' + ${_csrf.token}}"
+        method="post"
+        enctype="multipart/form-data"
+        class="wizard-content">
+
+    <!-- También dejamos el hidden (no molesta) -->
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+    <!-- Step 1: Upload -->
+    <div class="step-content active" id="step-1">
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">
+          <i class="fas fa-cloud-upload-alt"></i>
+        </div>
+        <div class="upload-text">Arrastra tu archivo CSV aquí</div>
+        <div class="upload-subtext">o haz clic para seleccionarlo</div>
+        <button class="upload-btn" type="button" onclick="document.getElementById('csvFileInput').click()">
+          <i class="fas fa-file-upload"></i> Seleccionar Archivo CSV
+        </button>
+        <input type="file" id="csvFileInput" name="archivo" accept=".csv" required />
+
+        <!-- PREVIEW LIST -->
+        <div class="file-preview-list" id="filePreviewList"></div>
+
+        <div style="margin-top: 1rem; color: #6b7280; font-size: 0.9rem;">
+          <strong>Formatos soportados:</strong> CSV (máx. 100MB)<br>
+          <strong>Registros recomendados:</strong> hasta 10,000+ entradas
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Configuración -->
+    <div class="step-content" id="step-2">
+      <div class="config-section">
+        <div class="config-title">
+          <i class="fas fa-cog"></i>
+          Configuración de Importación
+        </div>
+        <div class="config-grid">
+          <div class="config-card">
+            <div class="card-header">
+              <i class="fas fa-file-csv"></i> Opciones del Archivo
+            </div>
+            <div class="form-group">
+              <label class="form-label">Separador de campos</label>
+              <select class="form-control" id="delimiterSelect" name="delimiter">
+                <option value=",">Coma (,)</option>
+                <option value=";">Punto y coma (;)</option>
+                <option value="\t">Tabulación</option>
+                <option value="|">Barra vertical (|)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wizard-navigation">
+      <!-- Forzamos POST por si algún handler lo cambia -->
+      <button type="submit" form="importForm" formmethod="post" class="nav-btn btn-import">
+        <i class="fas fa-upload"></i> Importar CSV
+      </button>
+    </div>
+  </form>
+
+  <script>
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('csvFileInput');
+    const previewList = document.getElementById('filePreviewList');
+
+    function showFiles(files) {
+      previewList.innerHTML = '';
+      Array.from(files).forEach(file => {
+        const item = document.createElement('div');
+        item.className = 'file-preview-item';
+        item.innerHTML = `
+          <i class="fas fa-file-csv file-icon"></i>
+          <div class="file-info-text">
+            <div class="file-name">${file.name}</div>
+            <div class="file-size">${(file.size / (1024 * 1024)).toFixed(2)} MB</div>
+          </div>`;
+        previewList.appendChild(item);
+      });
+    }
+
+    uploadArea.addEventListener('dragover', e => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      fileInput.files = e.dataTransfer.files;
+      showFiles(fileInput.files);
+    });
+
+    fileInput.addEventListener('change', () => {
+      showFiles(fileInput.files);
+    });
+  </script>
+
+</div>
+</html>
+
+
+

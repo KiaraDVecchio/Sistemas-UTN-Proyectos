@@ -1,0 +1,91 @@
+@startuml
+!theme plain
+skinparam backgroundColor white
+skinparam node {
+    BackgroundColor white
+    BorderColor black
+}
+skinparam component {
+    BackgroundColor plum
+    BorderColor black
+}
+skinparam database {
+    BackgroundColor orange
+    BorderColor black
+}
+skinparam cloud {
+    BackgroundColor yellow
+    BorderColor black
+}
+skinparam actor {
+    BackgroundColor white
+    BorderColor black
+}
+
+database "Hechos y \nsolicitudes" as bd_agregador
+
+node "Agregador" as agregador {
+    component "API" as api_agregador
+    component "Modelo" as modelo_agregador #lightgray{
+        package "Agregacion" as agregacion #lightyellow
+        package "Fuentes" as fuentes_agregador #lightgreen
+        package "Solicitudes" as solicitudes_agregador #pink
+    }
+}
+
+node "Fuente De Datos Dinámica" as fuente_dinamica {
+    component "Modelo" as modelo_dinamica #lightgray{
+        package "Solicitudes" as solicitudes_dinamica #pink
+        package "Fuentes" as fuentes_dinamica #lightgreen
+    }
+    component "API" as api_dinamica
+}
+
+label "⏰" as RelojAgregador
+
+database "Hechos y \nsolicitudes" as bd_dinamica
+
+node "Fuente De Datos Estática" as fuente_estatica {
+    component "API" as api_estatica
+    component "Principal" as principal #lightgray{
+        package "Fuentes" as fuentes_estatica #lightgreen
+    }
+    file "Dataset" as dataset #gray
+}
+
+database "Hechos y \nRutas" as bd_estatica
+
+node "Fuente De Datos Proxy" as fuente_proxy {
+    component "Modelo" as modelo_proxy #lightgray{
+        package "Fuentes" as fuentes_proxy #lightgreen
+    }
+    component "API" as api_proxy
+}
+
+cloud "Servicio Externo" as servicio_externo
+
+api_agregador --> modelo_agregador
+agregacion --> fuentes_agregador
+agregacion --> solicitudes_agregador
+solicitudes_agregador --> fuentes_agregador
+modelo_agregador --> bd_agregador
+
+fuentes_agregador --> api_estatica
+fuentes_agregador --> api_proxy
+fuentes_agregador --> api_dinamica
+
+api_estatica --> principal
+
+fuentes_estatica --> bd_estatica
+fuentes_estatica --> dataset
+
+api_proxy --> modelo_proxy
+fuentes_proxy --> servicio_externo
+
+api_dinamica --> modelo_dinamica
+solicitudes_dinamica --> fuentes_dinamica
+fuentes_dinamica --> bd_dinamica
+
+RelojAgregador --> agregacion
+
+@enduml
