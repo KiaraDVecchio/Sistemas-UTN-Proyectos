@@ -18,3 +18,13 @@ Este proyecto es un sistema integral de reservas de alojamientos (estilo Airbnb)
 **Desafíos técnicos abordados:**
 * Arquitectura API REST: Diseño e implementación de una API robusta bajo el enfoque REST utilizando Node.js y Express, gestionando flujos complejos de reserva y disponibilidad.
 * Stack Tecnológico: JavaScript, Node.js, Express, MongoDB, Next.js, React, Axios, Jest, Cypress.
+
+### [Bases de Datos – Sistema de Gestión de Cursos](./Bases%20de%20Datos%20-%202025)
+Este proyecto consistió en el rediseño integral y la migración de un sistema de gestión académica para una institución educativa. El desafío principal fue transformar una base de datos masiva desnormalizada ("Tabla Maestra") en un modelo relacional eficiente y, posteriormente, en un modelo de Inteligencia de Negocios para la toma de decisiones estratégicas.
+
+**Desafíos técnicos abordados:**
+* Migración y Limpieza de Datos: Procesamiento de datos desorganizados e inconsistentes (DNI duplicados, fechas invertidas) mediante scripts de SQL, asegurando la integridad sin modificar la fuente original.
+* Modelo Transaccional (OLTP): Diseño y normalización de un esquema para gestionar inscripciones, evaluaciones, finales, facturación y encuestas anónimas.
+* Inteligencia de Negocios (BI/OLAP): Implementación de un modelo estelar con dimensiones y tablas de hechos para la obtención de indicadores de gestión y análisis de escenarios.
+* Automatización con SQL: Creación de Stored Procedures, Triggers y Vistas para automatizar la lógica de negocio y la carga de datos.
+* Stack Tecnológico: SQL Server 2022, T-SQL.
