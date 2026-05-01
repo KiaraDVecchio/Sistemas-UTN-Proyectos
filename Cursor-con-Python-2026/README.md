@@ -49,5 +49,5 @@ python app.py
 | fizzBuzz.py | Resolución de lógica algorítmica clásica. |
 | ejercicio_autocompletar.py | Implementación de lógica de predicción y autocompletado de datos. | 
 
-### 📂Preview
+### Preview: Gestor de Tareas
 ![Preview del Tablero de Tareas](./gestor_tareas_flask/preview.png)
