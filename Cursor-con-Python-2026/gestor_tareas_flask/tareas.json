@@ -1,0 +1,17 @@
+{
+  "tareas": [
+    {
+      "id": 1,
+      "texto": "Esto es una tarea",
+      "estado": "pendiente",
+      "tags": [
+        "backend"
+      ],
+      "deadline": "2026-05-04"
+    }
+  ],
+  "etiquetas": [
+    "backend",
+    "documentacion"
+  ]
+}
