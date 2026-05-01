@@ -30,10 +30,10 @@ Este proyecto consistió en el rediseño integral y la migración de un sistema 
 * Stack Tecnológico: SQL Server 2022, T-SQL.
 
 ### [Curso Python – Santander Open Academy (Cursor)](./Cursor-con-Python-2026)
-A diferencia de los proyectos anteriores, este espacio está dedicado a mi formación complementaria fuera de la currícula de la UTN. A través de la beca de **Santander Open Academy**, profundicé en el lenguaje Python y el uso de herramientas de IA para el desarrollo ágil.
+A diferencia de los proyectos anteriores, este espacio está dedicado a mi formación complementaria fuera de la currícula de la UTN. A través de la beca de **Santander Open Academy**, profundicé en el lenguaje Python y el uso de herramientas de IA (en este caso con Cursor) para el desarrollo ágil.
 
 **Desafíos técnicos abordados:**
-* **Desarrollo Web con Flask:** Creación de micro-aplicaciones (como el Gestor de Tareas) integrando servicios y rutas dinámicas.
-* **Lógica de Programación:** Resolución de desafíos clásicos (FizzBuzz, Contadores de palabras) con un enfoque en código limpio y eficiente.
-* **Integración con IA:** Uso estratégico de herramientas como Cursor para optimizar el flujo de trabajo y la corrección de errores en tiempo real.
-* **Stack Tecnológico:** Python 3, Flask, HTML/CSS (Jinja2), JSON, Cursor.
+* **AI-Assisted Development:** Implementación de flujo de trabajo basado en Agentes (AI Agents) para la generación de código, refactorización y debugging proactivo.
+* **Desarrollo Web con Flask:** Construcción de aplicaciones con rutas dinámicas y persistencia en JSON.
+* **Lógica y Algoritmia:** Resolución de desafíos técnicos optimizando la eficiencia del código mediante prompts avanzados y revisión de lógica asistida.
+* **Stack Tecnológico:** Python 3, Flask, Jinja2, AI Prompting.
