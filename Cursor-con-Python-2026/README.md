@@ -48,3 +48,6 @@ python app.py
 | contador_palabras/ | Módulo de procesamiento de strings y manipulación de archivos de texto (.txt). |
 | fizzBuzz.py | Resolución de lógica algorítmica clásica. |
 | ejercicio_autocompletar.py | Implementación de lógica de predicción y autocompletado de datos. | 
+
+### 📂Preview
+![Preview del Tablero de Tareas](./gestor_tareas_flask/preview.png)
