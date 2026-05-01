@@ -16,9 +16,8 @@ Es recomendable usar un `venv` para mantener las dependencias aisladas:
 ```powershell
 # Crear el entorno
 python -m venv venv
-```
+
 # Activar en Windows (PowerShell)
-```powershell
 .\venv\Scripts\activate
 ```
 
@@ -32,12 +31,13 @@ python app.py
 
 ### 3. Scripts de Consola
 
+```powershell
 # Calculadora simple
 `python calculadora.py`
 
 # Procesador de texto
 `python contador_palabras/contador.py`
-
+```
 ---
 
 ## 📂 Estructura del Repositorio
