@@ -16,33 +16,27 @@ Es recomendable usar un `venv` para mantener las dependencias aisladas:
 ```powershell
 # Crear el entorno
 python -m venv venv
-
+```
 # Activar en Windows (PowerShell)
+```powershell
 .\venv\Scripts\activate
-
-### 1. Preparar el Entorno Virtual
-Es recomendable usar un venv para mantener las dependencias aisladas:
-
-# Crear el entorno
-python -m venv venv
-
-# Activar en Windows (PowerShell)
-.\venv\Scripts\activate
+```
 
 ### 2. Ejecutar Aplicación Web (Flask)
-
+```powershell
 cd gestor_tareas_flask
 python app.py
+```
 
-> 💡 Una vez iniciado, accedé a: http://127.0.0.1:5000
+> 💡 Una vez iniciado, accedé a: `http://127.0.0.1:5000`
 
 ### 3. Scripts de Consola
 
 # Calculadora simple
-python calculadora.py
+`python calculadora.py`
 
 # Procesador de texto
-python contador_palabras/contador.py
+`python contador_palabras/contador.py`
 
 ---
 
