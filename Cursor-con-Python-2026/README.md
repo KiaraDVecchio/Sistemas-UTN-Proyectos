@@ -33,10 +33,10 @@ python app.py
 
 ```powershell
 # Calculadora simple
-`python calculadora.py`
+python calculadora.py
 
 # Procesador de texto
-`python contador_palabras/contador.py`
+python contador_palabras/contador.py
 ```
 ---
 
