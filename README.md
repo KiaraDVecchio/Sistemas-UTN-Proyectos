@@ -28,3 +28,12 @@ Este proyecto consistió en el rediseño integral y la migración de un sistema 
 * Inteligencia de Negocios (BI/OLAP): Implementación de un modelo estelar con dimensiones y tablas de hechos para la obtención de indicadores de gestión y análisis de escenarios.
 * Automatización con SQL: Creación de Stored Procedures, Triggers y Vistas para automatizar la lógica de negocio y la carga de datos.
 * Stack Tecnológico: SQL Server 2022, T-SQL.
+
+### [Curso Python – Santander Open Academy (Cursor)](./Cursor-con-Python-2026)
+A diferencia de los proyectos anteriores, este espacio está dedicado a mi formación complementaria fuera de la currícula de la UTN. A través de la beca de **Santander Open Academy**, profundicé en el lenguaje Python y el uso de herramientas de IA para el desarrollo ágil.
+
+**Desafíos técnicos abordados:**
+* **Desarrollo Web con Flask:** Creación de micro-aplicaciones (como el Gestor de Tareas) integrando servicios y rutas dinámicas.
+* **Lógica de Programación:** Resolución de desafíos clásicos (FizzBuzz, Contadores de palabras) con un enfoque en código limpio y eficiente.
+* **Integración con IA:** Uso estratégico de herramientas como Cursor para optimizar el flujo de trabajo y la corrección de errores en tiempo real.
+* **Stack Tecnológico:** Python 3, Flask, HTML/CSS (Jinja2), JSON, Cursor.
