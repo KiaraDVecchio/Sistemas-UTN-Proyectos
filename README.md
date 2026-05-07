@@ -15,6 +15,8 @@ Sistema de código abierto diseñado para la recopilación y visibilización geo
 ### [Birbnb – Plataforma de Gestión de Reservas Temporales](./Desarrollo%20de%20Software%20-%202025)
 Este proyecto es un sistema integral de reservas de alojamientos (estilo Airbnb) que permite a los usuarios buscar y alquilar propiedades de manera sencilla. La plataforma conecta anfitriones con huéspedes, permitiendo la gestión completa del ciclo de vida de una reserva, desde la búsqueda con filtros avanzados hasta la confirmación y el sistema de notificaciones en tiempo real.
 
+[![Demo de Birbnb](https://youtu.be/G992bgjGc2s?si=TGbOPYG2y35IGWXN)
+
 **Desafíos técnicos abordados:**
 * Arquitectura API REST: Diseño e implementación de una API robusta bajo el enfoque REST utilizando Node.js y Express, gestionando flujos complejos de reserva y disponibilidad.
 * Stack Tecnológico: JavaScript, Node.js, Express, MongoDB, Next.js, React, Axios, Jest, Cypress.
@@ -37,3 +39,5 @@ A diferencia de los proyectos anteriores, este espacio está dedicado a mi forma
 * **Desarrollo Web con Flask:** Construcción de aplicaciones con rutas dinámicas y persistencia en JSON.
 * **Lógica y Algoritmia:** Resolución de desafíos técnicos optimizando la eficiencia del código mediante prompts avanzados y revisión de lógica asistida.
 * **Stack Tecnológico:** Python 3, Flask, Jinja2, AI Prompting.
+
+
