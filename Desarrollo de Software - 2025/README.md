@@ -4,7 +4,7 @@ Birbnb es una aplicación web full-stack que permite la gestión de reservas tem
 
 ## 📺 Demo
 
-[Ver video en YouTube](https://www.youtube.com/watch?v=G992bgjGc2s)
+[![Ver Demo](https://img.shields.io/badge/Demo-Reproducir_Video-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=G992bgjGc2s)
 
 ---
 
