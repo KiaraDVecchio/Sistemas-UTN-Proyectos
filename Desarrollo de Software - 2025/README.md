@@ -1,6 +1,6 @@
 # Birbnb - Plataforma de Reservas de Alojamientos
 
-Birbnb es una aplicación web full-stack que permite la gestión de reservas temporales, inspirada en sistemas de economía colaborativa. Este proyecto fue desarrollado como parte de la cursada de Desarrollo de Sistemas.
+Birbnb es una aplicación web full-stack que permite la gestión de reservas temporales. Este proyecto fue desarrollado como parte de la cursada de Desarrollo de Software.
 
 ## 📺 Demo
 
