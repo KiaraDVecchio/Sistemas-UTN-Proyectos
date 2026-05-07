@@ -2,13 +2,10 @@
 
 Birbnb es una aplicación web full-stack que permite la gestión de reservas temporales, inspirada en sistemas de economía colaborativa. Este proyecto fue desarrollado como parte de la cursada de Desarrollo de Sistemas.
 
-## 📺 Demo del Proyecto
+## 📺 Demo
+![Demo de Birbnb](https://img.youtube.com/vi/G992bgjGc2s/0.jpg)
 
-<a href="LINK_A_TU_VIDEO" target="_blank">
-  <img src="https://github.com/user-attachments/assets/TU_IMAGEN_DE_PORTADA" alt="Birbnb Demo" width="600" />
-</a>
-
-*Haz clic en la imagen para ver el video con las funcionalidades principales.*
+[Ver video en YouTube](https://www.youtube.com/watch?v=G992bgjGc2s)
 
 ---
 
