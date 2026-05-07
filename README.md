@@ -17,7 +17,7 @@ Este proyecto es un sistema integral de reservas de alojamientos (estilo Airbnb)
 
 **🎥 ¡Mirá la aplicación en acción!**
 * No necesitás instalar nada para ver cómo funciona. Preparé una demo donde muestro los flujos principales (reserva, filtros, creación de alojamientos, etc.)
-*
+  
 [![Ver Demo](https://img.shields.io/badge/Demo-Reproducir_Video-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=G992bgjGc2s)
 
 **Desafíos técnicos abordados:**
