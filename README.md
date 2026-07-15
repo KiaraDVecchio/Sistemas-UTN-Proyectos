@@ -34,7 +34,7 @@ Este proyecto consistió en el rediseño integral y la migración de un sistema 
 * **Stack Tecnológico**: SQL Server 2022, T-SQL.
 
 ### [Plug & Pray – Simulador de Sistema Operativo Distribuido](./Sistemas%20Operativos%20(Linux)%20-%202026)
-Trabajo práctico grupal de la cátedra de Sistemas Operativos (UTN FRBA) enfocado en el diseño e implementación de un entorno distribuido que simula la operatoria completa de un sistema operativo real. El sistema cuenta con planificación de procesos en 7 estados, interpretación de instrucciones tipo pseudocódigo mediante una CPU con MMU, y un esquema de gestión de memoria segmentada dinámica con soporte para almacenamiento secundario (SWAP) y dispositivos de memoria física extraíbles de forma concurrente.
+Este trabajo práctico grupal estuvo enfocado en el diseño e implementación de un entorno distribuido que simula la operatoria completa de un sistema operativo real. El sistema cuenta con planificación de procesos en 7 estados, interpretación de instrucciones tipo pseudocódigo mediante una CPU con MMU, y un esquema de gestión de memoria segmentada dinámica con soporte para almacenamiento secundario (SWAP) y dispositivos de memoria física extraíbles de forma concurrente.
 
 **Desafíos técnicos abordados:**
 
