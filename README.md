@@ -34,6 +34,16 @@ Este proyecto consistió en el rediseño integral y la migración de un sistema 
 * Automatización con SQL: Creación de Stored Procedures, Triggers y Vistas para automatizar la lógica de negocio y la carga de datos.
 * Stack Tecnológico: SQL Server 2022, T-SQL.
 
+### [Plug & Pray – Simulador de Sistema Operativo Distribuido](./Sistemas%20Operativos%20(Linux)%20-%202026)
+Trabajo práctico grupal de la cátedra de Sistemas Operativos (UTN FRBA) enfocado en el diseño e implementación de un entorno distribuido que simula la operatoria completa de un sistema operativo real. El sistema cuenta con planificación de procesos en 7 estados, interpretación de instrucciones tipo pseudocódigo mediante una CPU con MMU, y un esquema de gestión de memoria segmentada dinámica con soporte para almacenamiento secundario (SWAP) y dispositivos de memoria física extraíbles de forma concurrente.
+
+**Desafíos técnicos abordados:**
+En este proyecto, asumí la responsabilidad principal del desarrollo de los siguientes módulos:
+* **Kernel Memory & SWAP**: Gestor de memoria con asignación dinámica (Best/Worst Fit) y algoritmo de compactación. Implementación del esquema de intercambio (SWAP) en disco para la suspensión/reincorporación de procesos.
+* **Memory Stick**: Simulación de conexión/desconexión de hardware en caliente, resolviendo concurrencia en lecturas/escrituras de múltiples CPUs y fallos de sistema (BSOD).
+* **I/O & Concurrencia**: Módulo de E/S de un solo hilo para STDIN/STDOUT/SLEEP. Sincronización multihilo en C mediante semáforos y mutexes para evitar condiciones de carrera entre procesos.
+* **Stack Tecnológico:** C, Pthreads, Sockets TCP/IP, Valgrind, so-commons-library.
+
 ### [Curso Python – Santander Open Academy (Cursor)](./Cursor-con-Python-2026)
 A diferencia de los proyectos anteriores, este espacio está dedicado a mi formación complementaria fuera de la currícula de la UTN. A través de la beca de **Santander Open Academy**, profundicé en el lenguaje Python y el uso de herramientas de IA (en este caso con Cursor) para el desarrollo ágil.
 
